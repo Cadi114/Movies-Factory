@@ -11,6 +11,7 @@ import addimgRouter from './router/addimg-router.js'
 import classRouter from './router/class-router.js'
 import commentRouter from './router/comment-router.js'
 import releaseRouter from './router/release-router.js'
+import getUserinfoRouter from './router/getUserinfo-router.js'
 
 const app = express()
 
@@ -39,6 +40,8 @@ app.use('/api', classRouter)
 app.use('/api', commentRouter)
 
 app.use('/api', releaseRouter)
+
+app.use('/api', getUserinfoRouter)
 
 app.listen(8080, () => {
   console.log('serve running at http://127.0.0.1')

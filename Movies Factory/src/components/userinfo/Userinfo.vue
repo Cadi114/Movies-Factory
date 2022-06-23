@@ -5,7 +5,7 @@
   <div class="userinfo">
     <div class="portrait">
       <div class="userimg">
-        <img :src="'../../../public/user-portrait/'+user.user_pic" alt="">
+        <img :src="'../../../public/user-portrait/' + user.user_pic" alt="" />
       </div>
       <div class="btn">
         <input type="file" id="file" accept="image/jpeg,.png" @change="getinfo($event)" />
@@ -14,8 +14,10 @@
       <!-- <button @click="postimg">发送</button> -->
     </div>
     <div class="info">
-      <p>名称：{{user.username}}</p>
-      <p>邮箱：{{user.email}}</p>
+      <p>名称：{{ user.username }}</p>
+      <p>邮箱：{{ user.email }}</p>
+      <!-- 退出按钮 -->
+      <button @click="logout">退出登录</button>
     </div>
   </div>
 </template>
@@ -26,6 +28,8 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import Vuex from 'vuex'
 import axios from 'axios'
+import getuserinfo from '../modular/userinfo.js'
+
 export default {
   name: 'Userinfo',
   setup() {
@@ -64,20 +68,33 @@ export default {
           await axios.post('http://127.0.0.1:8080/api/addimg', userinfo).then(res => {
             if (res.data.code == 200) {
               ElMessage({
-                message: '更换头像成功，需要重新登录',
+                message: '更换头像成功',
                 type: 'success'
               })
             }
           })
+          // 获取新的用户信息
+          const newUserinfo = await getuserinfo(userinfo.id)
+          // 更新用户信息
+          store.commit('setUser', newUserinfo.data.userinfo[0])
         }
       } else {
         ElMessage.error('请上传10M以内的图片')
       }
     }
 
+    // 退出登录
+    function logout() {
+      console.log('退出登录')
+      store.commit('removeUserinfo')
+      // 调用完成后直接刷新页面
+      location.reload()
+    }
+
     return {
       user,
-      getinfo
+      getinfo,
+      logout
     }
   }
 }
