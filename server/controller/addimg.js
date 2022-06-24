@@ -18,11 +18,20 @@ export async function postAllimg(req, res) {
   let base64Data = imgdata.replace(/^data:image\/\w+;base64,/, '')
 
   let dataBuffer = new Buffer(base64Data, 'base64')
+
+  console.log(id)
+  // 先删除旧头像
+  const [rows] = await db.query(`select user_pic from userinfo where id = ${id}`)
+  fs.unlink(__dirname + `/Movies Factory/public/user-portrait/${rows[0].user_pic}`, err => {
+    if (err) {
+      return console.log(err)
+    }
+  })
+
   fs.writeFile(__dirname + `/Movies Factory/public/user-portrait/${idimgdata}`, dataBuffer, err => {
     if (err) {
       return console.log('失败' + err)
     } else {
-      console.log('写入成功')
       console.log(`update userinfo set user_pic='${idimgdata}' where Id=${id}`)
       db.query(`update userinfo set user_pic='${idimgdata}' where Id=${id}`)
       res.send({

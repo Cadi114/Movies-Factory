@@ -3,10 +3,10 @@
   <div class="zt clearfix">
     <article class="zt-1" v-for="item in videoinfo" :key="item.vid" @click="govideo(item.vid)">
       <div class="dy-wz">
-        <img :src="'../../../public/image/'+item.vimg" alt="">
+        <img :src="'../../../public/image/' + item.vimg" alt="" />
         <a class="mask"></a>
-        <h4>{{item.vclass}}</h4>
-        <h2>{{item.vname}}</h2>
+        <h4>{{ item.vclass }}</h4>
+        <h2>{{ item.vname }}</h2>
       </div>
     </article>
   </div>

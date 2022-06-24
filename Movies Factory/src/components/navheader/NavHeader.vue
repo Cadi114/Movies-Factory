@@ -2,29 +2,28 @@
   <!-- 导航栏 -->
   <div class="yemei clearfix">
     <div class="logo" @click="$router.push('/')">
-      <img src="./imgs/logo-0.png" alt="" class="logo-img">
+      <img src="./imgs/logo-0.png" alt="" class="logo-img" />
     </div>
     <ul>
       <li class="user">
         <div class="username">
-          <p v-if="user.username" @click="gouserinfo">{{user.username}}</p>
+          <p v-if="user.username" @click="gouserinfo">{{ user.username }}</p>
           <p v-else @click="$router.push('/login')">请登录</p>
         </div>
         <div class="userimg">
-          <img :src="'../../../public/user-portrait/'+user.user_pic" alt="" v-if="user.user_pic" @click="gouserinfo">
-          <img src="../../../public/user-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else>
+          <img :src="'../../../public/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" @click="gouserinfo" />
+          <img src="../../../public/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
         </div>
       </li>
-      <li class="search" @mouseleave="searchshow=0">
+      <li class="search" @mouseleave="searchshow = 0">
         <a href="javascript:;" @click="searchshow = !searchshow"></a>
         <div class="search-input" v-if="searchshow">
-          <input type="text" placeholder="请输入搜索内容" v-model.trim="inputval" ref="inputret">
+          <input type="text" placeholder="请输入搜索内容" v-model.trim="inputval" ref="inputret" />
           <button @click="goscreen(inputval)">搜索</button>
         </div>
       </li>
-      <li><a href="#">其它</a>
-      </li>
-      <li class="type" @mouseenter="expandshow=1" @mouseleave="expandshow=0">
+      <li><a href="#">其它</a></li>
+      <li class="type" @mouseenter="expandshow = 1" @mouseleave="expandshow = 0">
         <a href="javascript:;">类型</a>
         <ul class="expand" v-if="expandshow">
           <li><a href="javascript:;" @click="goscreen('动画')">动画</a></li>
@@ -91,7 +90,7 @@ export default {
 }
 </script>
 
-<style  scoped>
+<style scoped>
 * {
   margin: 0;
   padding: 0;
