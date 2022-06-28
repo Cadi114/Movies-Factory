@@ -11,8 +11,8 @@
           <p v-else @click="$router.push('/login')">请登录</p>
         </div>
         <div class="userimg">
-          <img :src="'../../../public/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" @click="gouserinfo" />
-          <img src="../../../public/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
+          <img :src="'../../../user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" @click="gouserinfo" />
+          <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
         </div>
       </li>
       <li class="search" @mouseleave="searchshow = 0">

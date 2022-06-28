@@ -5,8 +5,8 @@
   <div class="userinfo">
     <div class="portrait">
       <div class="userimg">
-        <img :src="'../../../public/user-portrait/' + user.user_pic" v-if="user.user_pic" alt="" />
-        <img src="../../../public/inituser-portrait/userimg.jpg" alt="" v-else />
+        <img :src="'../../../user-portrait/' + user.user_pic" v-if="user.user_pic" alt="" />
+        <img src="../../../inituser-portrait/userimg.jpg" alt="" v-else />
       </div>
       <div class="btn">
         <input type="file" id="file" accept="image/jpeg,.png" @change="getinfo($event)" />

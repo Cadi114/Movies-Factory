@@ -2,21 +2,20 @@
   <div class="video">
     <p>{{ videoinfo.vname }}</p>
     <div class="video-play">
-      <video controls="controls" :src="'../../../public/video/'+videoinfo.vurl">
-      </video>
+      <video controls="controls" :src="'../../../video/' + videoinfo.vurl"></video>
       <div class="video-introduce">
         <div class="img-max">
-          <img :src="'../../../public/image/'+videoinfo.vimg" alt=" ">
+          <img :src="'../../../image/' + videoinfo.vimg" alt=" " />
         </div>
-        <ul class="video-introduce-text ">
-          <h1>{{videoinfo.vname}} ({{videoinfo.vtime}})</h1>
-          <h3>评分：{{videoinfo.vfractionl}}</h3>
-          <h4>类型：{{videoinfo.vclass}}</h4>
-          <h4>导演：{{videoinfo.vdirector}}</h4>
-          <h4>编剧：{{videoinfo.vscreenwriter}}</h4>
-          <h4>地区：{{videoinfo.vcountry}}</h4>
+        <ul class="video-introduce-text">
+          <h1>{{ videoinfo.vname }} ({{ videoinfo.vtime }})</h1>
+          <h3>评分：{{ videoinfo.vfractionl }}</h3>
+          <h4>类型：{{ videoinfo.vclass }}</h4>
+          <h4>导演：{{ videoinfo.vdirector }}</h4>
+          <h4>编剧：{{ videoinfo.vscreenwriter }}</h4>
+          <h4>地区：{{ videoinfo.vcountry }}</h4>
           <p>
-            {{videoinfo.vexplain}}
+            {{ videoinfo.vexplain }}
           </p>
         </ul>
       </div>
@@ -28,14 +27,14 @@
     </div>
     <div class="comment-publish">
       <div class="user-img">
-        <img :src="'../../../public/user-portrait/'+user.user_pic" alt="" v-if="user.user_pic">
-        <img src="../../../public/user-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else>
+        <img :src="'../../../user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
+        <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
       </div>
       <div class="content">
-        <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none;" placeholder="请输入评论" />
+        <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
       </div>
       <div class="btn">
-        <el-button type="primary" style="width:75px; height:75px" @click="publish">发表评论</el-button>
+        <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
       </div>
     </div>
   </div>
