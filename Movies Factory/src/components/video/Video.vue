@@ -91,6 +91,7 @@ export default {
                   message: '经验+3',
                   type: 'success'
                 })
+                location.reload() //刷新网页
               }
             })
           textarea.value = ''

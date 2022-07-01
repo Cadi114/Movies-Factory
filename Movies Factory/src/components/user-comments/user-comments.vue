@@ -11,11 +11,29 @@
         </div>
         <div class="user-com-text-rigth">
           <div class="text">
-            <p class="p-username">{{ item.username }}</p>
-            <p>{{ item.content }}</p>
-            <h5>{{ item.date }}</h5>
-            <h5 class="reply" @click="replyshow(index)">回复</h5>
-            <h5 class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</h5>
+            <div class="text-content">
+              <p class="p-username">{{ item.username }}</p>
+              <p>{{ item.content }}</p>
+              <h5>{{ item.date }}</h5>
+              <h5 class="reply" @click="replyshow(index)">回复</h5>
+              <h5 class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</h5>
+            </div>
+            <!-- 回复列表 -->
+            <div class="text-user-reply">
+              <div class="text-reply" v-for="(item2, index2) in item.userreply" :key="index2">
+                <div class="userimg-reply">
+                  <img :src="'../../../user-portrait/' + item2.user_pic" alt="" v-if="item2.user_pic" />
+                  <img src="../../../inituser-portrait/userimg.jpg" alt="" v-else />
+                </div>
+                <div class="user-content-reply">
+                  <span>{{ item2.username }}</span> 回复 <span>XXX</span> : <span>{{ item2.content }}</span>
+                  <div class="text-reply-bottom">
+                    <p>{{ item2.date }}</p>
+                    <p @click="replyshow(index)" class="bottom-reply">回复</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <!-- 回复框 -->
           <div class="reply-text" :class="{ show: active == index }">
@@ -63,10 +81,17 @@ export default {
     onMounted(async () => {
       let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
       comments.value = data.data.data || []
+      console.log(comments.value)
     })
 
+    // 删除评论
     async function deletecom(cid) {
-      // console.log(cid)
+      comments.value.forEach((item, index) => {
+        if (item.cid === cid) {
+          console.log(index)
+          comments.value.splice(index, 1)
+        }
+      })
       await axios
         .post('http://127.0.0.1:8080/api/comment?cid=', {
           cid
@@ -83,22 +108,21 @@ export default {
 
     // 回复按钮
     function replyshow(index) {
-      console.log(123)
       console.log(index)
-      this.active = index
+      active = index
       console.log(active)
     }
 
-    watch(
-      () => comments.value,
-      async () => {
-        let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
-        comments.value = data.data.data || []
-      },
-      {
-        deep: false //是否采用深度监听
-      }
-    )
+    // watch(
+    //   () => comments.value,
+    //   async () => {
+    //     let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
+    //     comments.value = data.data.data || []
+    //   },
+    //   {
+    //     deep: false //是否采用深度监听
+    //   }
+    // )
 
     return {
       comments,
@@ -161,13 +185,17 @@ img {
 }
 
 .text {
+  border-bottom: 3px solid rgb(102, 102, 102);
+}
+
+.text-content {
   position: relative;
   width: 680px;
   /* background-color: aqua; */
   min-height: 80px;
   padding-bottom: 35px;
   color: #fff;
-  border-bottom: 3px solid rgb(102, 102, 102);
+  /* border-bottom: 3px solid rgb(102, 102, 102); */
 }
 .text p {
   position: relative;
@@ -237,5 +265,39 @@ img {
   width: 500px;
   height: 100px;
   margin-right: 20px;
+}
+
+/* 回复栏 */
+
+.text-reply {
+  margin-top: 20px;
+  display: flex;
+  min-height: 50px;
+}
+.userimg-reply {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fff;
+  margin-right: 10px;
+}
+.user-content-reply {
+  color: #fff;
+  width: 640px;
+}
+.user-content-reply p {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.text-reply-bottom {
+  display: flex;
+}
+
+.text-reply-bottom .bottom-reply {
+  margin-right: 5px;
+  color: #a8a8a8;
+  cursor: pointer;
 }
 </style>
