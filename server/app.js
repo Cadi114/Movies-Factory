@@ -12,6 +12,7 @@ import classRouter from './router/class-router.js'
 import commentRouter from './router/comment-router.js'
 import releaseRouter from './router/release-router.js'
 import getUserinfoRouter from './router/getUserinfo-router.js'
+import getAddreplyRouter from './router/addreply-router.js'
 
 const app = express()
 
@@ -42,6 +43,8 @@ app.use('/api', commentRouter)
 app.use('/api', releaseRouter)
 
 app.use('/api', getUserinfoRouter)
+
+app.use('/api', getAddreplyRouter)
 
 app.listen(8080, () => {
   console.log('serve running at http://127.0.0.1')

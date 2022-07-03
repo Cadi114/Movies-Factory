@@ -17,9 +17,10 @@ export async function getAllcomment(req, res) {
 
   for (let i = 0; i < arr.length; i++) {
     const [rows] = await db.query(`select * from userinfo,userreply where uid = Id and cid=${arr[i].cid} order by date desc`)
-    arr[i].userreply = rows
-    console.log(arr[i])
+    // 数组翻转 让最新发布的回复保持在最下面
+    arr[i].userreply = rows.reverse()
   }
+
   res.send({
     status: 0,
     message: '获取评论列表成功',

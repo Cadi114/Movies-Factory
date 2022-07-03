@@ -15,7 +15,7 @@
               <p class="p-username">{{ item.username }}</p>
               <p>{{ item.content }}</p>
               <h5>{{ item.date }}</h5>
-              <h5 class="reply" @click="replyshow(index)">回复</h5>
+              <h5 class="reply" @click="replyshow(index, item.username, item.uid, item.cid)">回复</h5>
               <h5 class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</h5>
             </div>
             <!-- 回复列表 -->
@@ -26,27 +26,27 @@
                   <img src="../../../inituser-portrait/userimg.jpg" alt="" v-else />
                 </div>
                 <div class="user-content-reply">
-                  <span>{{ item2.username }}</span> 回复 <span>XXX</span> : <span>{{ item2.content }}</span>
+                  <span>{{ item2.username }}</span> 回复 <span class="objname">@{{ item2.objectname }}</span> : <span>{{ item2.content }}</span>
                   <div class="text-reply-bottom">
                     <p>{{ item2.date }}</p>
-                    <p @click="replyshow(index)" class="bottom-reply">回复</p>
+                    <p @click="replyshow(index, item2.username, item2.uid, item.cid)" class="bottom-reply">回复</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <!-- 回复框 -->
-          <div class="reply-text" :class="{ show: active == index }">
+          <div :class="active == index ? 'show' : 'reply-text'">
             <div class="comment-publish">
               <div class="user-img">
                 <img :src="'../../../user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
                 <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
               </div>
               <div class="content">
-                <el-input :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+                <el-input v-model="replyTextarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetName + '：'" />
               </div>
               <div class="btn">
-                <el-button type="primary" style="width: 75px; height: 75px">回复</el-button>
+                <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
               </div>
             </div>
           </div>
@@ -62,11 +62,13 @@
 </template>
 
 <script>
-import { reactive, onMounted, computed, ref, watch } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Vuex from 'vuex'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import moment from 'moment'
+import { forEach } from 'lodash'
 
 export default {
   name: 'UserComments',
@@ -76,19 +78,22 @@ export default {
     const user = computed(() => store.state.userInfo)
     let id = computed(() => route.query.id)
     let comments = ref([])
-    let active = -1
+    let active = ref(-1)
+    let targetName = ref('')
+    let targetUid = ref()
+    let targetCid = ref()
+    let replyTextarea = ref('')
 
     onMounted(async () => {
       let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
       comments.value = data.data.data || []
-      console.log(comments.value)
+      console.log(comments.value[1].userreply)
     })
 
     // 删除评论
     async function deletecom(cid) {
       comments.value.forEach((item, index) => {
         if (item.cid === cid) {
-          console.log(index)
           comments.value.splice(index, 1)
         }
       })
@@ -107,18 +112,72 @@ export default {
     }
 
     // 回复按钮
-    function replyshow(index) {
-      console.log(index)
-      active = index
-      console.log(active)
+    function replyshow(index, name, uid, cid) {
+      if (!user.value.Id) {
+        return ElMessage.error('请先登录')
+      }
+      active.value = index
+      targetName.value = name
+      targetUid.value = uid
+      targetCid.value = cid
+    }
+
+    //发起回复
+    async function reply() {
+      // 判断回复内容不许为空
+      if (!replyTextarea.value.trim()) {
+        // 清空回复框
+        replyTextarea.value = ''
+        return ElMessage.error('请输入回复内容！')
+      }
+
+      // 回复的数据
+      let replyData = {
+        cid: targetCid.value,
+        uid: user.value.Id,
+        content: replyTextarea.value,
+        date: moment().format('YYYY-MM-DD HH:mm'),
+        objectname: targetName.value,
+        objectuid: targetUid.value
+      }
+
+      // 发起请求
+      await axios.post('http://127.0.0.1:8080/api/addreply', replyData).then(res => {
+        if (res.data.code === 200) {
+          ElMessage({
+            message: '回复成功',
+            type: 'success'
+          })
+        } else {
+          return
+        }
+      })
+
+      // 为当前回复列表添加新数据
+      comments.value[active.value].userreply.push({
+        cid: targetCid.value,
+        uid: user.value.Id,
+        content: replyTextarea.value,
+        date: moment().format('YYYY-MM-DD HH:mm'),
+        objectname: targetName.value,
+        objectuid: targetUid.value,
+        uid: user.value.Id,
+        user_pic: user.value.user_pic,
+        username: user.value.username
+      })
+      // 清空回复框
+      replyTextarea.value = ''
+
+      // 让回复框隐藏
+      active.value = -1
     }
 
     // watch(
-    //   () => comments.value,
-    //   async () => {
-    //     let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
-    //     comments.value = data.data.data || []
-    //   },
+    //   // () => comments.value,
+    //   // async () => {
+    //   //   let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
+    //   //   comments.value = data.data.data || []
+    //   // },
     //   {
     //     deep: false //是否采用深度监听
     //   }
@@ -128,8 +187,11 @@ export default {
       comments,
       user,
       active,
+      targetName,
+      replyTextarea,
       deletecom,
-      replyshow
+      replyshow,
+      reply
     }
   }
 }
@@ -186,6 +248,7 @@ img {
 
 .text {
   border-bottom: 3px solid rgb(102, 102, 102);
+  padding-bottom: 5px;
 }
 
 .text-content {
@@ -283,20 +346,28 @@ img {
   margin-right: 10px;
 }
 .user-content-reply {
+  padding-top: 8px;
   color: #fff;
   width: 640px;
 }
+
+.objname {
+  color: rgb(114, 180, 238);
+  cursor: pointer;
+}
+
 .user-content-reply p {
   margin-top: 5px;
   font-size: 12px;
   font-weight: bold;
 }
 .text-reply-bottom {
+  margin-top: 20px;
   display: flex;
 }
 
 .text-reply-bottom .bottom-reply {
-  margin-right: 5px;
+  margin-left: 5px;
   color: #a8a8a8;
   cursor: pointer;
 }

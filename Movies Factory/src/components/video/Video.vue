@@ -72,12 +72,13 @@ export default {
     // 发表日期
     // let date = moment().format('YYYY-MM-DD HH:mm')
 
+    // 发布评论
     async function publish() {
       if (!user.value.Id) {
         router.push('/login')
       } else {
         // console.log(textarea.value, date, id.value, user.value.Id)
-        if (textarea.value) {
+        if (textarea.value.trim()) {
           await axios
             .post('http://127.0.0.1:8080/api/release', {
               uid: user.value.Id,
@@ -96,7 +97,8 @@ export default {
             })
           textarea.value = ''
         } else {
-          ElMessage.error('请输入评论内容！')
+          textarea.value = ''
+          return ElMessage.error('请输入评论内容！')
         }
       }
     }
@@ -213,7 +215,7 @@ img {
 .user-img {
   width: 60px;
   height: 60px;
-  border-radius: 100px;
+  border-radius: 50%;
   border: 3px solid #fff;
   margin-bottom: 30px;
   overflow: hidden;

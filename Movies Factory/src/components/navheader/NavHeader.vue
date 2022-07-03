@@ -261,14 +261,14 @@ a {
   background-color: #fff;
   margin-top: 8px;
   overflow: hidden;
-  border-radius: 30px;
+  border-radius: 50%;
   cursor: pointer;
   border: 3px solid rgb(0, 130, 182);
 }
 
 .userimg img {
-  width: 100%;
-  height: 100%;
+  width: 101%;
+  height: 101%;
 }
 
 .logo {
