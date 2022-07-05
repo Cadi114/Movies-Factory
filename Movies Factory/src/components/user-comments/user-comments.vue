@@ -68,7 +68,7 @@ import Vuex from 'vuex'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
-import { forEach } from 'lodash'
+import request from '../../utils/request.js'
 
 export default {
   name: 'UserComments',
@@ -85,9 +85,12 @@ export default {
     let replyTextarea = ref('')
 
     onMounted(async () => {
-      let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
+      // let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
+      let data = await request({
+        method: 'GET',
+        url: '/api/comment?id=' + id.value
+      })
       comments.value = data.data.data || []
-      console.log(comments.value[1].userreply)
     })
 
     // 删除评论

@@ -2,13 +2,13 @@
   <!-- login -->
   <div class="login">
     <div class="login-register">
-      <div @click="loginbtnshow" :class="showmode? 'loginBtn select' : 'loginBtn'">登录</div>
+      <div @click="loginbtnshow" :class="showmode ? 'loginBtn select' : 'loginBtn'">登录</div>
       <div @click="registerbtnshow" :class="!showmode ? 'registerBtn select' : 'registerBtn'">注册</div>
     </div>
 
     <!-- logo -->
     <div id="minlogin">
-      <img src="./imgs/logo-0.png" alt="">
+      <img src="./imgs/logo-0.png" alt="" />
     </div>
 
     <!-- 登录界面 -->
@@ -38,9 +38,7 @@
           </div>
         </form>
       </div>
-
     </div>
-
   </div>
 </template>
 
@@ -61,6 +59,9 @@ export default {
       loginpassword: ''
     })
     const { proxy } = getCurrentInstance()
+    const regname = /^[\u4E00-\u9FA5A-Za-z0-9_]+$/
+    const regemail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+    const regpassword = /^[a-zA-Z]\w{5,17}$/
 
     let userregister = reactive({
       username: '',
@@ -115,6 +116,19 @@ export default {
 
     // 注册
     async function registergo() {
+      // 格式校验
+      if (!userregister.username || !userregister.email || !userregister.password || !userregister.okpassword) {
+        return ElMessage.error('账户、邮箱、密码、确认密码 不能为空！')
+      } else if (!regname.test(userregister.username)) {
+        return ElMessage.error('用户名格式不合法，只允许汉字、数字、英文以及下划线')
+      } else if (!regemail.test(userregister.email)) {
+        return ElMessage.error('邮箱格式不合法')
+      } else if (!regpassword.test(userregister.password)) {
+        return ElMessage.error('密码格式不正确(以字母开头，长度在6~18之间，只能包含字母、数字和下划线)')
+      } else if (!(userregister.password === userregister.okpassword)) {
+        return ElMessage.error('确认密码不一致')
+      }
+
       await axios.post('http://127.0.0.1:8080/api/register', userregister).then(res => {
         if (res.data.code === 303) {
           ElMessage.error('账户、邮箱、密码、确认密码 不能为空！')
@@ -122,11 +136,12 @@ export default {
           ElMessage.error('密码与确认密码不相同')
         } else if (res.data.code === 305) {
           ElMessage.error('邮箱或用户名已被注册')
+        } else if (res.data.code === 306) {
+          ElMessage.error('用户名格式不合法，只允许汉字、数字、英文以及下划线')
         } else if (res.data.code === 307) {
-          ElMessage({
-            message: '注册失败请稍后再试',
-            type: 'warning'
-          })
+          ElMessage.error('邮箱格式不合法')
+        } else if (res.data.code === 308) {
+          ElMessage.error('密码格式不正确(以字母开头，长度在6~18之间，只能包含字母、数字和下划线)')
         } else if (res.data.code === 200) {
           ElMessage({
             message: '注册成功',
