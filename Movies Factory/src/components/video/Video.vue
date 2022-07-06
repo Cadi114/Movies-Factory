@@ -5,7 +5,7 @@
       <video controls="controls" :src="'../../../video/' + videoinfo.vurl"></video>
       <div class="video-introduce">
         <div class="img-max">
-          <img :src="'../../../image/' + videoinfo.vimg" alt=" " />
+          <img :src="'http://127.0.0.1:8080/api/img/image/' + videoinfo.vimg" alt=" " />
         </div>
         <ul class="video-introduce-text">
           <h1>{{ videoinfo.vname }} ({{ videoinfo.vtime }})</h1>
@@ -27,7 +27,7 @@
     </div>
     <div class="comment-publish">
       <div class="user-img">
-        <img :src="'../../../user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
+        <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
         <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
       </div>
       <div class="content">

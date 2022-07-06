@@ -22,13 +22,13 @@ export async function postAllimg(req, res) {
   console.log(id)
   // 先删除旧头像
   const [rows] = await db.query(`select user_pic from userinfo where id = ${id}`)
-  fs.unlink(__dirname + `/Movies Factory/public/user-portrait/${rows[0].user_pic}`, err => {
+  fs.unlink(__dirname + `/server/img/user-portrait/${rows[0].user_pic}`, err => {
     if (err) {
       return console.log(err)
     }
   })
 
-  fs.writeFile(__dirname + `/Movies Factory/public/user-portrait/${idimgdata}`, dataBuffer, err => {
+  fs.writeFile(__dirname + `/server/img/user-portrait/${idimgdata}`, dataBuffer, err => {
     if (err) {
       return console.log('失败' + err)
     } else {

@@ -1,14 +1,14 @@
 <template>
   <div class="Screen-text">
-    <p>搜索：{{val}}</p>
+    <p>搜索：{{ val }}</p>
   </div>
   <div class="zt clearfix" v-if="videoinfo.length">
     <article class="zt-1" v-for="item in videoinfo" :itemData="item" :key="item.vid" @click="govideo(item.vid)">
       <div class="dy-wz">
-        <img :src="'../../../public/image/'+item.vimg" alt="">
+        <img :src="'http://127.0.0.1:8080/api/img/image/' + item.vimg" alt="" />
         <a class="mask"></a>
-        <h4>{{item.vclass}}</h4>
-        <h2>{{item.vname}}</h2>
+        <h4>{{ item.vclass }}</h4>
+        <h2>{{ item.vname }}</h2>
       </div>
     </article>
   </div>
