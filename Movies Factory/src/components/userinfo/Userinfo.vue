@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, watch, getCurrentInstance } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import Vuex from 'vuex'
@@ -34,6 +34,7 @@ import getuserinfo from '../modular/userinfo.js'
 export default {
   name: 'Userinfo',
   setup() {
+    const { proxy } = getCurrentInstance()
     const store = Vuex.useStore()
     const router = useRouter()
     const user = computed(() => store.state.userInfo)
@@ -66,7 +67,7 @@ export default {
         }
         // 发起post请求
         fr.onloadend = async function () {
-          await axios.post('http://127.0.0.1:8080/api/addimg', userinfo).then(res => {
+          await proxy.$api.postdata.postAddImg(userinfo).then(res => {
             if (res.data.code == 200) {
               ElMessage({
                 message: '更换头像成功',
@@ -75,7 +76,7 @@ export default {
             }
           })
           // 获取新的用户信息
-          const newUserinfo = await getuserinfo(userinfo.id)
+          const newUserinfo = await proxy.$api.getdata.getUserInfo(userinfo.id)
           // 更新用户信息
           store.commit('setUser', newUserinfo.data.userinfo[0])
         }

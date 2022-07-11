@@ -83,35 +83,35 @@ export default {
     let user = ref({})
     // 登录
     async function logingo() {
-      await axios
-        .post('http://127.0.0.1:8080/api/login', {
-          email: userlogin.loginemail,
-          password: userlogin.loginpassword
-        })
-        .then(res => {
-          if (res.data.code === 300) {
-            ElMessage.error('请输入邮箱和密码！')
-          } else if (res.data.code === 301) {
-            ElMessage.error('邮箱不存在！')
-          } else if (res.data.code === 302) {
-            ElMessage.error('密码错误！')
-            // 清空密码输入框
-            userlogin.loginpassword = ''
-          } else if (res.data.code === 200) {
-            // 使用组件库里的提示框
-            ElMessage({
-              message: '登录成功',
-              type: 'success'
-            })
+      // await axios
+      //   .post('http://127.0.0.1:8080/api/login', {
+      //     email: userlogin.loginemail,
+      //     password: userlogin.loginpassword
+      //   })
+      await proxy.$api.postdata.postLogin({ email: userlogin.loginemail, password: userlogin.loginpassword }).then(res => {
+        if (res.data.code === 300) {
+          ElMessage.error('请输入邮箱和密码！')
+        } else if (res.data.code === 301) {
+          ElMessage.error('邮箱不存在！')
+        } else if (res.data.code === 302) {
+          ElMessage.error('密码错误！')
+          // 清空密码输入框
+          userlogin.loginpassword = ''
+        } else if (res.data.code === 200) {
+          // 使用组件库里的提示框
+          ElMessage({
+            message: '登录成功',
+            type: 'success'
+          })
 
-            user = res.data.data[0]
-            store.commit('setUser', user)
-            // 跳转到登录前的页面
-            if (proxy.prevRoute) {
-              proxy.$router.push(proxy.prevRoute)
-            }
+          user = res.data.data[0]
+          store.commit('setUser', user)
+          // 跳转到登录前的页面
+          if (proxy.prevRoute) {
+            proxy.$router.push(proxy.prevRoute)
           }
-        })
+        }
+      })
     }
 
     // 注册
@@ -129,7 +129,7 @@ export default {
         return ElMessage.error('确认密码不一致')
       }
 
-      await axios.post('http://127.0.0.1:8080/api/register', userregister).then(res => {
+      await proxy.$api.postdata.postRegister(userregister).then(res => {
         if (res.data.code === 303) {
           ElMessage.error('账户、邮箱、密码、确认密码 不能为空！')
         } else if (res.data.code === 304) {

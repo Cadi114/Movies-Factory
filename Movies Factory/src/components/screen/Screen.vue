@@ -19,12 +19,13 @@
 
 <script>
 import Carousel from '../carousel/Carousel.vue'
-import { onMounted, ref, computed, onBeforeUpdate, watch } from 'vue'
+import { onMounted, ref, computed, getCurrentInstance, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 export default {
   name: 'Screen',
   setup() {
+    let { proxy } = getCurrentInstance()
     let videoinfo = ref([])
     const router = useRouter()
     const route = useRoute()
@@ -35,7 +36,8 @@ export default {
     watch(
       () => val.value,
       async () => {
-        let data = await axios.get('http://127.0.0.1:8080/api/screen?val=' + val.value)
+        // let data = await axios.get('http://127.0.0.1:8080/api/screen?val=' + val.value)
+        let data = await proxy.$api.getdata.getAllscreen(val.value)
         videoinfo.value = data.data.data || []
       },
       {

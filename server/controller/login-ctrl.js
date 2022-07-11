@@ -2,6 +2,7 @@ import db from '../db/index.js'
 
 export async function postAlllogin(req, res) {
   const userinfo = req.body
+  console.log(userinfo)
 
   if (!userinfo.email || !userinfo.password) {
     return res.send({

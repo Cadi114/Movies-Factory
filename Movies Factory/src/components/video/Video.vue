@@ -44,7 +44,7 @@
 
 <script>
 import { useRoute, useRouter } from 'vue-router'
-import { onMounted, computed, ref, reactive } from 'vue'
+import { onMounted, computed, ref, getCurrentInstance } from 'vue'
 import { ElMessage } from 'element-plus'
 import Vuex from 'vuex'
 import axios from 'axios'
@@ -54,6 +54,7 @@ import moment from 'moment'
 export default {
   name: 'Video',
   setup() {
+    let { proxy } = getCurrentInstance()
     const route = useRoute()
     const router = useRouter()
     const store = Vuex.useStore()
@@ -63,7 +64,8 @@ export default {
     let id = computed(() => route.query.id)
 
     onMounted(async () => {
-      let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
+      // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
+      let data = await proxy.$api.getdata.getVideoInfoID(id.value)
       videoinfo.value = data.data.data
     })
 
@@ -79,8 +81,8 @@ export default {
       } else {
         // console.log(textarea.value, date, id.value, user.value.Id)
         if (textarea.value.trim()) {
-          await axios
-            .post('http://127.0.0.1:8080/api/release', {
+          await await proxy.$api.postdata
+            .postRelease({
               uid: user.value.Id,
               vid: id.value,
               content: textarea.value,

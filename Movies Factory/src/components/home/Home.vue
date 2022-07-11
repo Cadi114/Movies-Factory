@@ -16,20 +16,21 @@
 <script>
 import Carousel from '../carousel/Carousel.vue'
 import bottom from '../bottom/bottom.vue'
-import { onMounted, ref } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 export default {
   name: 'Home',
   setup() {
+    let { proxy } = getCurrentInstance()
     let videoinfo = ref([])
     const router = useRouter()
     onMounted(async () => {
-      let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
+      // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
+      let data = await proxy.$api.getdata.getVideoInfo()
 
       videoinfo.value = data.data.data || []
-      console.log(videoinfo.value)
     })
 
     function govideo(vid) {

@@ -7,11 +7,16 @@ import App from './App.vue'
 import router from './router/router.js'
 import store from './store/store.js'
 
+import api from './api'
+
 const app = createApp(App)
+
+app.config.globalProperties.$api = api
 
 // 挂载路由
 app.use(router)
 app.use(ElementPlus)
 app.use(store)
+app.use(api)
 
 app.mount('#app')

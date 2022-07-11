@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router'
 import Vuex from 'vuex'
 import axios from 'axios'
@@ -73,6 +73,7 @@ import request from '../../utils/request.js'
 export default {
   name: 'UserComments',
   setup() {
+    let { proxy } = getCurrentInstance()
     const route = useRoute()
     const store = Vuex.useStore()
     const user = computed(() => store.state.userInfo)
@@ -86,10 +87,7 @@ export default {
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
-      let data = await request({
-        method: 'GET',
-        url: '/api/comment?id=' + id.value
-      })
+      let data = await proxy.$api.getdata.getComments(id.value)
       comments.value = data.data.data || []
     })
 
@@ -100,18 +98,15 @@ export default {
           comments.value.splice(index, 1)
         }
       })
-      await axios
-        .post('http://127.0.0.1:8080/api/comment?cid=', {
-          cid
-        })
-        .then(res => {
-          if (res.data.code === 200) {
-            ElMessage({
-              message: '此评论已删除',
-              type: 'success'
-            })
-          }
-        })
+
+      await proxy.$api.postdata.postDeleteComment({ cid }).then(res => {
+        if (res.data.code === 200) {
+          ElMessage({
+            message: '此评论已删除',
+            type: 'success'
+          })
+        }
+      })
     }
 
     // 回复按钮
@@ -145,7 +140,7 @@ export default {
       }
 
       // 发起请求
-      await axios.post('http://127.0.0.1:8080/api/addreply', replyData).then(res => {
+      await proxy.$api.postdata.postAddreply(replyData).then(res => {
         if (res.data.code === 200) {
           ElMessage({
             message: '回复成功',
