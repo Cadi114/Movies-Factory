@@ -2,7 +2,8 @@
   <div class="video">
     <p>{{ videoinfo.vname }}</p>
     <div class="video-play">
-      <video controls="controls" :src="'../../../video/' + videoinfo.vurl"></video>
+      <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/' + videoinfo.vurl" v-if="videoinfo.vurl"></video>
+      <!-- <video preload="metadata" controls="controls" :src="'../../../public/video/' + videoinfo.vurl"></video> -->
       <div class="video-introduce">
         <div class="img-max">
           <img :src="'http://127.0.0.1:8080/api/img/image/' + videoinfo.vimg" alt=" " />
@@ -59,7 +60,6 @@ export default {
     const router = useRouter()
     const store = Vuex.useStore()
     const user = computed(() => store.state.userInfo)
-
     let videoinfo = ref({})
     let id = computed(() => route.query.id)
 
