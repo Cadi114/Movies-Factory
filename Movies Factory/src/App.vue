@@ -1,7 +1,7 @@
 <template>
   <NavHeader></NavHeader>
   <router-view></router-view>
-  <el-backtop :right="40" :bottom="100" style="background-color:#666; color:#fff; width:45px; height:45px" />
+  <el-backtop :right="40" :bottom="100" style="background-color: #666; color: #fff; width: 45px; height: 45px" />
 </template>
 
 <script>

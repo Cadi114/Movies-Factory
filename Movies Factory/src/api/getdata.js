@@ -9,6 +9,15 @@ function getVideoInfo(data = {}) {
   })
 }
 
+// 获取当前页码的20部电影
+function getVideoInfoPage(o, n, data = {}) {
+  return request({
+    method: 'GET',
+    url: '/api/getvideopage?old=' + o + '&new=' + n,
+    data
+  })
+}
+
 // 获取电影数据api
 function getVideoInfoID(id, data = {}) {
   return request({
@@ -54,4 +63,4 @@ function getUserInfo(id, data = {}) {
   })
 }
 
-export default { getVideoInfo, getVideoInfoID, getAllscreen, getComments, getClass, getUserInfo }
+export default { getVideoInfo, getVideoInfoID, getAllscreen, getComments, getClass, getUserInfo, getVideoInfoPage }

@@ -20,7 +20,6 @@ const router = createRouter({
 // 从vuex中获取用户id
 const store = Vuex.useStore()
 const user = computed(() => store)
-console.log(user.value)
 
 // 声明全局的导航首位
 // router.beforeEach((to, from, next) => {

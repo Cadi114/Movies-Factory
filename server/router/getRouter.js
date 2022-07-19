@@ -5,6 +5,7 @@ import { getAllscreen } from '../controller/screen-ctrl.js'
 import { getAllUserinfo } from '../controller/getUserinfo.js'
 import { getAllcomment } from '../controller/comment.js'
 import { getAllclass } from '../controller/class-ctrl.js'
+import { getVideoPage } from '../controller/getvideopage.js'
 
 const router = new express.Router()
 
@@ -20,5 +21,7 @@ router.get('/getuserinfo', getAllUserinfo)
 router.get('/comment', getAllcomment)
 //获取筛选列表
 router.get('/class', getAllclass)
+//获取对应页数的视频内容
+router.get('/getvideopage', getVideoPage)
 
 export default router

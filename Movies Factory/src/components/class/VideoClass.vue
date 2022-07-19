@@ -3,8 +3,8 @@
     <p>搜索：{{ val }}</p>
   </div>
   <div class="zt clearfix" v-if="videoinfo.length">
-    <article class="zt-1" v-for="item in videoinfo" :itemData="item" :key="item.vid" @click="govideo(item.vid)">
-      <div class="dy-wz">
+    <article class="zt-1" v-for="item in videoinfo" :itemData="item" :key="item.vid">
+      <div class="dy-wz" @click="govideo(item.vid)">
         <img :src="'http://127.0.0.1:8080/api/img/image/' + item.vimg" alt="" />
         <a class="mask"></a>
         <h4>{{ item.vclass }}</h4>
