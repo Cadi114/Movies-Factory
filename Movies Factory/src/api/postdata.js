@@ -36,6 +36,15 @@ function postDeleteComment(data = {}) {
   })
 }
 
+//删除回复api
+function postDeleteReply(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/deletereply',
+    data
+  })
+}
+
 //回复评论api
 function postAddreply(data = {}) {
   return request({
@@ -54,4 +63,4 @@ function postAddImg(data = {}) {
   })
 }
 
-export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg }
+export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply }

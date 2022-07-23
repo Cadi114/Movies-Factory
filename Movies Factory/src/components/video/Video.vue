@@ -1,9 +1,16 @@
 <template>
   <div class="video">
-    <p>{{ videoinfo.vname }}</p>
+    <p class="title">{{ videoinfo.vname }}</p>
     <div class="video-play">
       <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/' + videoinfo.vurl" v-if="videoinfo.vurl"></video>
-      <!-- <video preload="metadata" controls="controls" :src="'../../../public/video/' + videoinfo.vurl"></video> -->
+      <!-- <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/video-1.mp4'"></video> -->
+      <!-- 选集列表 -->
+      <div class="video-film" v-if="videoinfo.film != ''">
+        <p class="video-film-text">选集</p>
+        <ul>
+          <li v-for="(item, index) in videoinfo.film" :key="item.filmnum" @click="filmClick(index)" :class="active == index ? 'current' : ''">{{ item.filmnum }}</li>
+        </ul>
+      </div>
       <div class="video-introduce">
         <div class="img-max">
           <img :src="'http://127.0.0.1:8080/api/img/image/' + videoinfo.vimg" alt=" " />
@@ -48,7 +55,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { onMounted, computed, ref, getCurrentInstance } from 'vue'
 import { ElMessage } from 'element-plus'
 import Vuex from 'vuex'
-import axios from 'axios'
 import UserComment from '../user-comments/user-comments.vue'
 import moment from 'moment'
 
@@ -62,11 +68,16 @@ export default {
     const user = computed(() => store.state.userInfo)
     let videoinfo = ref({})
     let id = computed(() => route.query.id)
+    let filmnum = computed(() => route.query.filmnum - 1)
+    let active = ref(filmnum.value || 0)
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
       let data = await proxy.$api.getdata.getVideoInfoID(id.value)
       videoinfo.value = data.data.data
+      if (filmnum.value) {
+        videoinfo.value.vurl = videoinfo.value.film[filmnum.value].filmdata
+      }
     })
 
     // 发表评论
@@ -105,11 +116,24 @@ export default {
       }
     }
 
+    //选集点击事件
+    function filmClick(index) {
+      videoinfo.value.vurl = videoinfo.value.film[index].filmdata
+      active.value = index
+      if (videoinfo.value.film[index].filmnum === 1) {
+        router.push('/video?id=' + id.value)
+      } else {
+        router.push('/video?id=' + id.value + '&filmnum=' + videoinfo.value.film[index].filmnum)
+      }
+    }
+
     return {
       user,
       videoinfo,
       textarea,
-      publish
+      active,
+      publish,
+      filmClick
     }
   },
   components: {
@@ -125,7 +149,7 @@ export default {
   margin: 80px auto;
 }
 
-.video p {
+.video .title {
   font-size: 48px;
   text-align: center;
   color: #fff;
@@ -144,6 +168,41 @@ export default {
 
 video {
   width: 1200px;
+}
+
+/* 选集 */
+
+.video-film {
+  margin-top: 40px;
+}
+
+.video-film-text {
+  margin: 0 0 10px 10px;
+  font-size: 24px;
+  color: #fff;
+}
+
+.video-film ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.video-film ul li {
+  width: 80px;
+  height: 40px;
+  background-color: #323232;
+  border: #a8a8a8 solid 1px;
+  color: #a8a8a8;
+  font-size: 20px;
+  margin: 10px 10px;
+  text-align: center;
+  line-height: 40px;
+  cursor: pointer;
+}
+
+.current {
+  background-color: burlywood !important;
+  color: #fff !important;
 }
 
 .video-introduce {

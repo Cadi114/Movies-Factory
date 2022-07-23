@@ -28,8 +28,13 @@
                 <div class="user-content-reply">
                   <span>{{ item2.username }}</span> 回复 <span class="objname">@{{ item2.objectname }}</span> : <span>{{ item2.content }}</span>
                   <div class="text-reply-bottom">
-                    <p>{{ item2.date }}</p>
-                    <p @click="replyshow(index, item2.username, item2.uid, item.cid)" class="bottom-reply">回复</p>
+                    <div class="bottom-left">
+                      <span>{{ item2.date }}</span>
+                      <span @click="replyshow(index, item2.username, item2.uid, item.cid)" class="bottom-reply">回复</span>
+                    </div>
+                    <div class="bottom-right">
+                      <span v-if="item2.uid == user.Id" @click="deleteReply(index, item2.rid)">删除</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -65,10 +70,8 @@
 import { onMounted, computed, ref, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router'
 import Vuex from 'vuex'
-import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
-import request from '../../utils/request.js'
 
 export default {
   name: 'UserComments',
@@ -103,6 +106,23 @@ export default {
         if (res.data.code === 200) {
           ElMessage({
             message: '此评论已删除',
+            type: 'success'
+          })
+        }
+      })
+    }
+
+    //删除回复内容
+    async function deleteReply(i, rid) {
+      comments.value[i].userreply.forEach((item, index) => {
+        if (item.rid === rid) {
+          comments.value[i].userreply.splice(index, 1)
+        }
+      })
+      await proxy.$api.postdata.postDeleteReply({ rid }).then(res => {
+        if (res.data.code === 200) {
+          ElMessage({
+            message: '此回复已删除',
             type: 'success'
           })
         }
@@ -189,7 +209,8 @@ export default {
       replyTextarea,
       deletecom,
       replyshow,
-      reply
+      reply,
+      deleteReply
     }
   }
 }
@@ -362,6 +383,14 @@ img {
 .text-reply-bottom {
   margin-top: 20px;
   display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.text-reply-bottom .bottom-right span {
+  color: #a8a8a8;
+  cursor: pointer;
 }
 
 .text-reply-bottom .bottom-reply {

@@ -12,7 +12,10 @@ export async function getAllVideo(req, res) {
       Page: num[0]
     })
   } else {
-    const [rows] = await db.query(`select * from videoinfo where vid=${req.query.id} `)
+    let [rows] = await db.query(`select * from videoinfo where vid=${req.query.id} `)
+    // rows[0].film = await db.query(`select * from videodata where vid=${req.query.id}`)
+    let [data] = await db.query(`select * from videodata where vid=${req.query.id}`)
+    rows[0].film = data
     res.send({
       status: 0,
       message: '获取视频列表成功',

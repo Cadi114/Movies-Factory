@@ -38,7 +38,6 @@ export default {
       videoinfo.value = data.data.data || []
       num.value = data.data.Page.NUM
       Page.value = Math.ceil(num.value / 20) * 10
-      console.log(num.value)
     })
 
     function govideo(vid) {
