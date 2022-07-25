@@ -19,25 +19,37 @@
 <script>
 import Carousel from '../carousel/Carousel.vue'
 import bottom from '../bottom/bottom.vue'
-import { getCurrentInstance, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { getCurrentInstance, onMounted, ref, watch, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 export default {
   name: 'Home',
   setup() {
     let { proxy } = getCurrentInstance()
     let videoinfo = ref([])
-    let currentPage = ref(1)
     let num = ref(0)
     let Page = ref(0)
     const router = useRouter()
-    onMounted(async () => {
-      // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
-      let data = await proxy.$api.getdata.getVideoInfo()
+    const route = useRoute()
+    let p = computed(() => route.query.p)
+    let currentPage = ref(1)
 
-      videoinfo.value = data.data.data || []
-      num.value = data.data.Page.NUM
-      Page.value = Math.ceil(num.value / 20) * 10
+    onMounted(async () => {
+      if (p.value) {
+        let newNum = p.value * 20
+        let oldNum = newNum - 20
+        let data = await proxy.$api.getdata.getVideoInfoPage(oldNum, newNum)
+        videoinfo.value = data.data.data || []
+        num.value = data.data.Page.NUM
+        Page.value = Math.ceil(num.value / 20) * 10
+        currentPage.value = Number(p.value)
+      } else {
+        // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
+        let data = await proxy.$api.getdata.getVideoInfo()
+        videoinfo.value = data.data.data || []
+        num.value = data.data.Page.NUM
+        Page.value = Math.ceil(num.value / 20) * 10
+      }
     })
 
     function govideo(vid) {
@@ -58,6 +70,11 @@ export default {
           left: 0,
           behavior: 'smooth'
         })
+        if (currentPage.value == 1) {
+          router.push('/home')
+        } else {
+          router.push('/home?p=' + currentPage.value)
+        }
       }
     )
 

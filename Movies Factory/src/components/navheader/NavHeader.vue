@@ -1,7 +1,7 @@
 <template>
   <!-- 导航栏 -->
   <div class="yemei clearfix">
-    <div class="logo" @click="$router.push('/')">
+    <div class="logo" @click="$router.push('/home')">
       <img src="./imgs/logo-0.png" alt="" class="logo-img" />
     </div>
     <ul>
