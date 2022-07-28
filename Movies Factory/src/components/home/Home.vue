@@ -1,5 +1,5 @@
 <template>
-  <Carousel></Carousel>
+  <Carousel v-if="!p"></Carousel>
   <div class="zt clearfix">
     <article class="zt-1" v-for="item in videoinfo" :key="item.vid">
       <div class="dy-wz" @click="govideo(item.vid)">
@@ -9,8 +9,9 @@
         <h2>{{ item.vname }}</h2>
       </div>
     </article>
-    <div class="pagination">
-      <el-pagination v-model:currentPage="currentPage" hide-on-single-page background layout="prev, pager, next" :total="Page" />
+    <!-- 分页组件 -->
+    <div class="pagination" v-if="Page != 0">
+      <paging :page="Page" :url="'/home'"></paging>
     </div>
   </div>
   <bottom></bottom>
@@ -19,6 +20,7 @@
 <script>
 import Carousel from '../carousel/Carousel.vue'
 import bottom from '../bottom/bottom.vue'
+import paging from '../paging/Paging.vue'
 import { getCurrentInstance, onMounted, ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -35,21 +37,20 @@ export default {
     let currentPage = ref(1)
 
     onMounted(async () => {
-      if (p.value) {
-        let newNum = p.value * 20
-        let oldNum = newNum - 20
-        let data = await proxy.$api.getdata.getVideoInfoPage(oldNum, newNum)
-        videoinfo.value = data.data.data || []
-        num.value = data.data.Page.NUM
-        Page.value = Math.ceil(num.value / 20) * 10
-        currentPage.value = Number(p.value)
-      } else {
-        // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
-        let data = await proxy.$api.getdata.getVideoInfo()
-        videoinfo.value = data.data.data || []
-        num.value = data.data.Page.NUM
-        Page.value = Math.ceil(num.value / 20) * 10
+      let newNum = 20
+      if (p.value > 1) {
+        newNum = p.value * 20
       }
+      let oldNum = newNum - 20
+      let data = await proxy.$api.getdata.getVideoInfoPage(oldNum, newNum)
+      videoinfo.value = data.data.data || []
+      num.value = data.data.Page.NUM
+      Page.value = Math.ceil(num.value / 20) * 10
+      //       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
+      // let data = await proxy.$api.getdata.getVideoInfo()
+      // videoinfo.value = data.data.data || []
+      // num.value = data.data.Page.NUM
+      // Page.value = Math.ceil(num.value / 20) * 10
     })
 
     function govideo(vid) {
@@ -59,21 +60,16 @@ export default {
 
     watch(
       // 监听当前页码有没有改变
-      () => currentPage.value,
+      () => p.value,
       async () => {
-        let newNum = currentPage.value * 20
-        let oldNum = newNum - 20
-        let data = await proxy.$api.getdata.getVideoInfoPage(oldNum, newNum)
-        videoinfo.value = data.data.data || []
-        window.scroll({
-          top: 650,
-          left: 0,
-          behavior: 'smooth'
-        })
-        if (currentPage.value == 1) {
-          router.push('/home')
+        if (p.value) {
+          let newNum = p.value * 20
+          let oldNum = newNum - 20
+          let data = await proxy.$api.getdata.getVideoInfoPage(oldNum, newNum)
+          videoinfo.value = data.data.data || []
         } else {
-          router.push('/home?p=' + currentPage.value)
+          let data = await proxy.$api.getdata.getVideoInfoPage(0, 20)
+          videoinfo.value = data.data.data || []
         }
       }
     )
@@ -82,13 +78,15 @@ export default {
       videoinfo,
       currentPage,
       Page,
+      p,
       govideo
     }
   },
 
   components: {
     Carousel,
-    bottom
+    bottom,
+    paging
   }
 }
 </script>
@@ -194,36 +192,5 @@ h2 {
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-}
-
-.el-pagination.is-background .el-pager li:not(.disabled) {
-  background-color: #3d3d3d;
-  color: #fff;
-  font-size: 16px;
-}
-
-.el-pagination.is-background .el-pager li:not(.is-disabled).is-active {
-  background-color: rgb(130, 130, 130);
-}
-
-.el-pagination.is-background .btn-next:disabled,
-.el-pagination.is-background .btn-prev:disabled {
-  background-color: #3d3d3d;
-}
-
-.el-pagination.is-background .btn-next.is-first,
-.el-pagination.is-background .btn-prev.is-first,
-.el-pagination.is-background .el-pager {
-  background-color: #3d3d3d;
-  color: #fff;
-  font-size: 16px;
-}
-
-.el-pagination.is-background .btn-next.is-last,
-.el-pagination.is-background .btn-prev.is-last,
-.el-pagination.is-background .el-pager {
-  background-color: #3d3d3d;
-  color: #fff;
-  font-size: 16px;
 }
 </style>
