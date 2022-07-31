@@ -11,6 +11,10 @@
         <h2>{{ item.vname }}</h2>
       </div>
     </article>
+    <!-- 分页组件 -->
+    <div class="pagination" v-if="Page != 0">
+      <paging :page="Page" :url="'/class?val=' + val"></paging>
+    </div>
   </div>
   <div class="Screen-null" v-else>
     <p>什么都没有</p>
@@ -19,9 +23,10 @@
 
 <script>
 import Carousel from '../carousel/Carousel.vue'
-import { ref, computed, watch, getCurrentInstance } from 'vue'
+import paging from '../paging/Paging.vue'
+import { ref, computed, watch, getCurrentInstance, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+
 export default {
   name: 'VideoClass',
   setup() {
@@ -31,20 +36,30 @@ export default {
     const route = useRoute()
     // 接收导航栏传过来的参数
     let val = computed(() => route.query.val)
+    let p = computed(() => (route.query.p ? route.query.p : 0))
+    let Page = ref(0)
 
-    // 监听val的值是否发生变化
-    watch(
-      () => val.value,
-      async () => {
-        // let data = await axios.get('http://127.0.0.1:8080/api/class?val=' + val.value)
-        let data = await proxy.$api.getdata.getClass(val.value)
-        videoinfo.value = data.data.data || []
-      },
-      {
-        deep: false, //是否采用深度监听
-        immediate: true //首次加载执行
+    onMounted(async () => {
+      // let data = await axios.get('http://127.0.0.1:8080/api/class?val=' + val.value)
+      let data = await proxy.$api.getdata.getClass(val.value)
+      let arr = data.data.data || []
+      Page.value = Math.ceil(arr.length / 20) * 10
+      if (p.value > 1) {
+        videoinfo.value = arr.slice(p.value * 20 - 20 || 0, p.value * 20)
+      } else {
+        videoinfo.value = arr.slice(0, 20)
       }
-    )
+    }),
+      // 监听val的值是否发生变化
+      watch(
+        () => val.value,
+        async () => {
+          location.reload()
+        },
+        {
+          deep: true //是否采用深度监听
+        }
+      )
 
     function govideo(vid) {
       let id = vid
@@ -54,12 +69,14 @@ export default {
     return {
       videoinfo,
       val,
+      Page,
       govideo
     }
   },
 
   components: {
-    Carousel
+    Carousel,
+    paging
   }
 }
 </script>
@@ -176,5 +193,12 @@ h2 {
   position: absolute;
   top: 280px;
   left: 25px;
+}
+
+.pagination {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
 }
 </style>

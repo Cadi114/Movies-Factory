@@ -15,7 +15,6 @@ export default {
     let page = props.page
     let p = computed(() => route.query.p)
     let currentPage = ref(Number(p.value > 1 ? p.value : 1))
-    console.log(props.url)
 
     watch(
       // 监听当前页码有没有改变
@@ -24,7 +23,11 @@ export default {
         if (currentPage.value < 2) {
           router.push(props.url)
         } else {
-          router.push(props.url + '?p=' + currentPage.value)
+          if (Object.keys(route.query).length > 0) {
+            router.push(props.url + '&p=' + currentPage.value)
+          } else {
+            router.push(props.url + 'p=' + currentPage.value)
+          }
         }
       }
     )

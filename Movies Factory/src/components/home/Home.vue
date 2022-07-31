@@ -11,7 +11,7 @@
     </article>
     <!-- 分页组件 -->
     <div class="pagination" v-if="Page != 0">
-      <paging :page="Page" :url="'/home'"></paging>
+      <paging :page="Page" :url="'/home?'"></paging>
     </div>
   </div>
   <bottom></bottom>
