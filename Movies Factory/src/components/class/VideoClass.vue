@@ -1,6 +1,7 @@
 <template>
   <div class="Screen-text">
-    <p>搜索：{{ val }}</p>
+    <span>搜索：{{ val }}</span>
+    <span class="screen-result">搜索结果({{ videoNum }})</span>
   </div>
   <div class="zt clearfix" v-if="videoinfo.length">
     <article class="zt-1" v-for="item in videoinfo" :itemData="item" :key="item.vid">
@@ -38,17 +39,19 @@ export default {
     let val = computed(() => route.query.val)
     let p = computed(() => (route.query.p ? route.query.p : 0))
     let Page = ref(0)
+    let videoNum = ref(0)
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/class?val=' + val.value)
-      let data = await proxy.$api.getdata.getClass(val.value)
-      let arr = data.data.data || []
-      Page.value = Math.ceil(arr.length / 20) * 10
-      if (p.value > 1) {
-        videoinfo.value = arr.slice(p.value * 20 - 20 || 0, p.value * 20)
-      } else {
-        videoinfo.value = arr.slice(0, 20)
-      }
+      let data = await proxy.$api.getdata.getClass(val.value, p.value)
+      videoinfo.value = data.data.data || []
+      videoNum.value = data.data.Page.NUM || 0
+      Page.value = Math.ceil(videoNum.value / 20) * 10
+      // if (p.value > 1) {
+      //   videoinfo.value = arr.slice(p.value * 20 - 20 || 0, p.value * 20)
+      // } else {
+      //   videoinfo.value = arr.slice(0, 20)
+      // }
     }),
       // 监听val的值是否发生变化
       watch(
@@ -70,10 +73,10 @@ export default {
       videoinfo,
       val,
       Page,
+      videoNum,
       govideo
     }
   },
-
   components: {
     Carousel,
     paging
@@ -107,13 +110,19 @@ h2 {
 .Screen-text {
   margin: 20px 80px;
   height: 80px;
-  font-size: 30px;
-  color: #fff;
   border-bottom: 3px solid #fff;
 }
 
-.Screen-text p {
+.Screen-text span {
+  color: #fff;
+  font-size: 30px;
   line-height: 80px;
+}
+
+.Screen-text .screen-result {
+  margin-left: 20px;
+  font-size: 18px;
+  color: #ccc;
 }
 
 .Screen-null {

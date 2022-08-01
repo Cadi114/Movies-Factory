@@ -51,6 +51,8 @@
 import { reactive, ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Vuex from 'vuex'
+import { ElMessage } from 'element-plus'
+
 export default {
   name: 'NavHeader',
 
@@ -66,6 +68,9 @@ export default {
     let inputval = ref('')
 
     function goscreen(val) {
+      if (val == '') {
+        return ElMessage.error('请输入要搜索的内容')
+      }
       router.push('/screen?val=' + val)
     }
 

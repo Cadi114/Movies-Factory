@@ -46,11 +46,6 @@ export default {
       videoinfo.value = data.data.data || []
       num.value = data.data.Page.NUM
       Page.value = Math.ceil(num.value / 20) * 10
-      //       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo')
-      // let data = await proxy.$api.getdata.getVideoInfo()
-      // videoinfo.value = data.data.data || []
-      // num.value = data.data.Page.NUM
-      // Page.value = Math.ceil(num.value / 20) * 10
     })
 
     function govideo(vid) {

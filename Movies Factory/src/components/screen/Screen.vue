@@ -1,6 +1,7 @@
 <template>
   <div class="Screen-text">
-    <p>搜索：{{ val }}</p>
+    <span>搜索：{{ val }}</span>
+    <span class="screen-result">搜索结果({{ videoNum }})</span>
   </div>
   <div class="zt clearfix" v-if="videoinfo.length">
     <article class="zt-1" v-for="item in videoinfo" :itemData="item" :key="item.vid">
@@ -31,6 +32,7 @@ export default {
     const route = useRoute()
     // 接收导航栏传过来的参数
     let val = computed(() => route.query.val)
+    let videoNum = ref(0)
 
     // 监听val的值是否发生变化
     watch(
@@ -39,6 +41,7 @@ export default {
         // let data = await axios.get('http://127.0.0.1:8080/api/screen?val=' + val.value)
         let data = await proxy.$api.getdata.getAllscreen(val.value)
         videoinfo.value = data.data.data || []
+        videoNum.value = videoinfo.value.length
       },
       {
         deep: false, //是否采用深度监听
@@ -54,7 +57,8 @@ export default {
     return {
       videoinfo,
       val,
-      govideo
+      govideo,
+      videoNum
     }
   },
 
@@ -90,13 +94,19 @@ h2 {
 .Screen-text {
   margin: 20px 80px;
   height: 80px;
-  font-size: 30px;
-  color: #fff;
   border-bottom: 3px solid #fff;
 }
 
-.Screen-text p {
+.Screen-text span {
+  color: #fff;
+  font-size: 30px;
   line-height: 80px;
+}
+
+.Screen-text .screen-result {
+  margin-left: 20px;
+  font-size: 18px;
+  color: #ccc;
 }
 
 .Screen-null {

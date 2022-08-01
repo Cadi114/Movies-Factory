@@ -2,7 +2,6 @@ import db from '../db/index.js'
 
 export async function postAlllogin(req, res) {
   const userinfo = req.body
-  console.log(userinfo)
 
   if (!userinfo.email || !userinfo.password) {
     return res.send({
@@ -33,7 +32,7 @@ export async function postAlllogin(req, res) {
       code: 200,
       status: 0,
       msg: '登录成功',
-      data: rows
+      data: { Id: rows[0].Id, email: rows[0].email, user_pic: rows[0].user_pic, user_status: rows[0].user_status, username: rows[0].username }
     })
   }
 }

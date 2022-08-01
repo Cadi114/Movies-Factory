@@ -83,11 +83,6 @@ export default {
     let user = ref({})
     // 登录
     async function logingo() {
-      // await axios
-      //   .post('http://127.0.0.1:8080/api/login', {
-      //     email: userlogin.loginemail,
-      //     password: userlogin.loginpassword
-      //   })
       await proxy.$api.postdata.postLogin({ email: userlogin.loginemail, password: userlogin.loginpassword }).then(res => {
         if (res.data.code === 300) {
           ElMessage.error('请输入邮箱和密码！')
@@ -104,7 +99,7 @@ export default {
             type: 'success'
           })
 
-          user = res.data.data[0]
+          user = res.data.data
           store.commit('setUser', user)
           // 跳转到登录前的页面
           if (proxy.prevRoute) {

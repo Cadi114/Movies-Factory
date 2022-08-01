@@ -46,12 +46,20 @@ function getComments(id, data = {}) {
 }
 
 // 获取电影、剧集列表
-function getClass(val, data = {}) {
-  return request({
-    method: 'GET',
-    url: '/api/class?val=' + val,
-    data
-  })
+function getClass(val, p, data = {}) {
+  if (p) {
+    return request({
+      method: 'GET',
+      url: '/api/class?val=' + val + '&p=' + p,
+      data
+    })
+  } else {
+    return request({
+      method: 'GET',
+      url: '/api/class?val=' + val,
+      data
+    })
+  }
 }
 
 //获取用户信息
