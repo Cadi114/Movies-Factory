@@ -7,7 +7,7 @@
       <div class="usercom-text" v-for="(item, index) in comments" :itemData="item" :key="item.cid">
         <div class="userimg">
           <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + item.user_pic" alt="" v-if="item.user_pic" />
-          <img src="../../../inituser-portrait/userimg.jpg" alt="" v-else />
+          <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" v-else />
         </div>
         <div class="user-com-text-rigth">
           <div class="text">
@@ -23,7 +23,7 @@
               <div class="text-reply" v-for="(item2, index2) in item.userreply" :key="index2">
                 <div class="userimg-reply">
                   <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + item2.user_pic" alt="" v-if="item2.user_pic" />
-                  <img src="../../../inituser-portrait/userimg.jpg" alt="" v-else />
+                  <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" v-else />
                 </div>
                 <div class="user-content-reply">
                   <span>{{ item2.username }}</span> 回复 <span class="objname">@{{ item2.objectname }}</span> : <span>{{ item2.content }}</span>
@@ -45,7 +45,7 @@
             <div class="comment-publish">
               <div class="user-img">
                 <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
-                <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
+                <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
               </div>
               <div class="content">
                 <el-input v-model="replyTextarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetName + '：'" />

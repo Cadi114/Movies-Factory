@@ -36,7 +36,7 @@
     <div class="comment-publish">
       <div class="user-img">
         <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
-        <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
+        <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
       </div>
       <div class="content">
         <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />

@@ -5,7 +5,7 @@ import Vuex from 'vuex'
 
 const router = createRouter({
   // 指定路由工作模式
-  history: createWebHashHistory(),
+  history: createWebHashHistory(import.meta.env.VITE_APP_BASE_API),
   routes: [
     { path: '/', redirect: '/home' },
     { path: '/home', component: Home },
@@ -20,18 +20,5 @@ const router = createRouter({
 // 从vuex中获取用户id
 const store = Vuex.useStore()
 const user = computed(() => store)
-
-// 声明全局的导航首位
-// router.beforeEach((to, from, next) => {
-//   if (to.path === '/userinfo') {
-//     if (!user.value.id) {
-//       next('/login')
-//     } else {
-//       next()
-//     }
-//   } else {
-//     next()
-//   }
-// })
 
 export default router

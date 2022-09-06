@@ -1,8 +1,5 @@
 import express from 'express'
-import { getImg } from '../controller/getimg.js'
-import { getVideo } from '../controller/getvideo.js'
-
-const router = new express.Router()
+var router = express.Router()
 
 router.all('*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
@@ -12,7 +9,13 @@ router.all('*', function (req, res, next) {
   next()
 })
 
-router.get('/img/*', getImg)
-router.get('/video/*', getVideo)
+/* GET home page. */
+router.get('/', function (req, res, next) {
+  res.render('index', { title: 'Express' })
+})
 
-export default router
+router.get('/list', function (req, res, next) {
+  res.json({ a: 1 })
+})
+
+module.exports = router

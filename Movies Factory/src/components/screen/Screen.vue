@@ -22,7 +22,7 @@
 import Carousel from '../carousel/Carousel.vue'
 import { onMounted, ref, computed, getCurrentInstance, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+
 export default {
   name: 'Screen',
   setup() {
@@ -33,19 +33,22 @@ export default {
     // 接收导航栏传过来的参数
     let val = computed(() => route.query.val)
     let videoNum = ref(0)
+    onMounted(async () => {
+      let data = await proxy.$api.getdata.getAllscreen(val.value)
+      videoinfo.value = data.data.data || []
+      videoNum.value = videoinfo.value.length
+    })
 
     // 监听val的值是否发生变化
     watch(
       () => val.value,
       async () => {
-        // let data = await axios.get('http://127.0.0.1:8080/api/screen?val=' + val.value)
-        let data = await proxy.$api.getdata.getAllscreen(val.value)
-        videoinfo.value = data.data.data || []
-        videoNum.value = videoinfo.value.length
+        // 刷新网页
+        location.reload()
       },
       {
-        deep: false, //是否采用深度监听
-        immediate: true //首次加载执行
+        deep: false //是否采用深度监听
+        // immediate: true //首次加载执行
       }
     )
 

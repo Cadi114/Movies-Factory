@@ -12,32 +12,36 @@
         </div>
         <div class="userimg">
           <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" @click="gouserinfo" />
-          <img src="../../../inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
+          <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
         </div>
       </li>
-      <li class="search" @mouseleave="searchshow = 0">
-        <a href="javascript:;" @click="searchshow = !searchshow"></a>
-        <div class="search-input" v-if="searchshow">
-          <input type="text" placeholder="请输入搜索内容" v-model.trim="inputval" ref="inputret" />
-          <button @click="goscreen(inputval)">搜索</button>
-        </div>
+      <li class="search">
+        <a href="javascript:;" @click.stop="searchshow = !searchshow"></a>
+        <transition name="searchShowTransition">
+          <div class="search-input" @click.stop="true" v-show="searchshow">
+            <input type="text" placeholder="请输入搜索内容" v-model.trim="inputval" ref="inputret" />
+            <button @click.stop="goscreen(inputval)">搜索</button>
+          </div>
+        </transition>
       </li>
       <li><a href="#">其它</a></li>
-      <li class="type" @mouseenter="expandshow = 1" @mouseleave="expandshow = 0">
+      <li class="type" @mouseenter="isexpandShow" @mouseleave="expandshow = 0">
         <a href="javascript:;">类型</a>
-        <ul class="expand" v-if="expandshow">
-          <li><a href="javascript:;" @click="goscreen('动画')">动画</a></li>
-          <li><a href="javascript:;" @click="goscreen('动作')">动作</a></li>
-          <li><a href="javascript:;" @click="goscreen('科幻')">科幻</a></li>
-          <li><a href="javascript:;" @click="goscreen('奇幻')">奇幻</a></li>
-          <li><a href="javascript:;" @click="goscreen('恐怖')">恐怖</a></li>
-          <li><a href="javascript:;" @click="goscreen('犯罪')">犯罪</a></li>
-          <li><a href="javascript:;" @click="goscreen('纪录片')">纪录片</a></li>
-          <li><a href="javascript:;" @click="goscreen('爱情')">爱情</a></li>
-          <li><a href="javascript:;" @click="goscreen('喜剧')">喜剧</a></li>
-          <li><a href="javascript:;" @click="goscreen('悬疑')">悬疑</a></li>
-          <li><a href="javascript:;" @click="goscreen('冒险')">冒险</a></li>
-        </ul>
+        <transition name="expandTransition">
+          <div class="expand" v-show="expandshow">
+            <div><a href="javascript:;" @click="goscreen('动画')">动画</a></div>
+            <div><a href="javascript:;" @click="goscreen('动作')">动作</a></div>
+            <div><a href="javascript:;" @click="goscreen('科幻')">科幻</a></div>
+            <div><a href="javascript:;" @click="goscreen('奇幻')">奇幻</a></div>
+            <div><a href="javascript:;" @click="goscreen('恐怖')">恐怖</a></div>
+            <div><a href="javascript:;" @click="goscreen('犯罪')">犯罪</a></div>
+            <div><a href="javascript:;" @click="goscreen('纪录片')">纪录片</a></div>
+            <div><a href="javascript:;" @click="goscreen('爱情')">爱情</a></div>
+            <div><a href="javascript:;" @click="goscreen('喜剧')">喜剧</a></div>
+            <div><a href="javascript:;" @click="goscreen('悬疑')">悬疑</a></div>
+            <div><a href="javascript:;" @click="goscreen('冒险')">冒险</a></div>
+          </div>
+        </transition>
       </li>
       <li><a href="javascript:;" @click="goclass('电影')">电影</a></li>
       <li><a href="javascript:;" @click="goclass('剧集')">剧集</a></li>
@@ -48,7 +52,7 @@
 </template>
 
 <script>
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Vuex from 'vuex'
 import { ElMessage } from 'element-plus'
@@ -82,6 +86,19 @@ export default {
       router.push('/class?val=' + val)
     }
 
+    // 下拉菜单
+    function isexpandShow() {
+      expandshow.value = 1
+      searchshow.value = 0
+    }
+
+    onMounted(() => {
+      // 当用户点击搜索框之外的内容时，搜索框隐藏
+      window.addEventListener('click', () => {
+        searchshow.value = 0
+      })
+    })
+
     return {
       searchshow,
       expandshow,
@@ -89,7 +106,8 @@ export default {
       inputval,
       goscreen,
       gouserinfo,
-      goclass
+      goclass,
+      isexpandShow
     }
   }
 }
@@ -150,7 +168,7 @@ li {
   width: 80px;
 }
 
-.yemei ul li a {
+.yemei ul > li > a {
   display: block;
   font-family: 'icomoon';
   font-size: 24px;
@@ -163,7 +181,7 @@ li {
   font-size: 22px;
 }
 
-.yemei ul li a:hover {
+.yemei ul > li > a:hover {
   color: #4d4d4d;
   cursor: pointer;
 }
@@ -210,7 +228,6 @@ a {
   background-color: #323232;
   border: 2px solid rgb(0, 0, 0);
   box-shadow: 0px 4px 8px #000000;
-  /* display: none; */
 }
 
 .yemei .search-input input {
@@ -286,23 +303,29 @@ a {
 }
 
 .yemei .expand {
+  width: 100px;
+  margin-left: -20px;
   position: absolute;
   /* display: none; */
-
   z-index: -1;
 }
 
-.yemei .expand li {
+.yemei .expand div {
   /* display: none; */
-  margin: 0 -20px;
-  padding-left: 20px;
   width: 100px;
   height: 40px;
   background-color: #fff;
-  text-align: left;
+  text-align: center;
+  cursor: pointer;
 }
 
-.yemei .expand li:hover {
+.yemei .expand div a {
+  font-size: 20px;
+  color: #000000;
+  line-height: 40px;
+}
+
+.yemei .expand div:hover {
   background-color: cornflowerblue;
 }
 
@@ -310,5 +333,59 @@ a {
   font-size: 16px !important;
   line-height: 40px !important;
   color: black !important;
+}
+
+/* 搜索框的过渡动画 */
+.searchShowTransition-enter-from {
+  opacity: 0;
+}
+
+.searchShowTransition-enter-active {
+  transition: opacity 0.5s;
+}
+
+.searchShowTransition-enter-to {
+  opacity: 1;
+}
+
+.searchShowTransition-leave-from {
+  opacity: 1;
+}
+
+.searchShowTransition-leave-active {
+  transition: opacity 0.5s;
+}
+
+.searchShowTransition-leave-to {
+  opacity: 0;
+}
+
+/* 类型下拉菜单的过渡动画 */
+.expandTransition-enter-from {
+  height: 0px;
+  overflow: hidden;
+}
+
+.expandTransition-enter-active {
+  transition: all 0.3s linear;
+  overflow: hidden;
+}
+
+.expandTransition-enter-to {
+  height: 440px;
+  overflow: hidden;
+}
+
+.expandTransition-leave-from {
+  height: 440px;
+}
+
+.expandTransition-leave-active {
+  transition: all 0.3s linear;
+  overflow: hidden;
+}
+
+.expandTransition-leave-to {
+  height: 0;
 }
 </style>

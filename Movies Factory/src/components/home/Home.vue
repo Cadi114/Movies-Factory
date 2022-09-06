@@ -1,4 +1,5 @@
 <template>
+  <!-- 轮播图 -->
   <Carousel v-if="!p"></Carousel>
   <div class="zt clearfix">
     <article class="zt-1" v-for="item in videoinfo" :key="item.vid">
@@ -23,7 +24,6 @@ import bottom from '../bottom/bottom.vue'
 import paging from '../paging/Paging.vue'
 import { getCurrentInstance, onMounted, ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
 export default {
   name: 'Home',
   setup() {

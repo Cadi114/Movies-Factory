@@ -9,6 +9,7 @@ import NavHeader from './components/navheader/NavHeader.vue'
 import Carousel from './components/carousel/Carousel.vue'
 import Home from './components/home/Home.vue'
 import Video from './components/video/Video.vue'
+
 export default {
   components: {
     NavHeader,
@@ -16,7 +17,10 @@ export default {
     Home,
     Video
   },
+
   mounted() {
+    const ip = import.meta.env.VITE_APP_BASE_API
+    console.log(ip)
     this.$router.afterEach((to, from, next) => {
       window.scrollTo(0, 0)
     })

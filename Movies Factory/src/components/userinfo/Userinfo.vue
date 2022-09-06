@@ -6,7 +6,7 @@
     <div class="portrait">
       <div class="userimg">
         <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" v-if="user.user_pic" alt="" />
-        <img src="../../../inituser-portrait/userimg.jpg" alt="" v-else />
+        <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" v-else />
       </div>
       <div class="btn">
         <input type="file" id="file" accept="image/jpeg,.png" @change="getinfo($event)" />

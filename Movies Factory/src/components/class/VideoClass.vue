@@ -47,16 +47,12 @@ export default {
       videoinfo.value = data.data.data || []
       videoNum.value = data.data.Page.NUM || 0
       Page.value = Math.ceil(videoNum.value / 20) * 10
-      // if (p.value > 1) {
-      //   videoinfo.value = arr.slice(p.value * 20 - 20 || 0, p.value * 20)
-      // } else {
-      //   videoinfo.value = arr.slice(0, 20)
-      // }
     }),
       // 监听val的值是否发生变化
       watch(
         () => val.value,
         async () => {
+          // 刷新网页
           location.reload()
         },
         {
