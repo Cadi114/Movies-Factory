@@ -16,8 +16,8 @@ export default {
     let p = computed(() => route.query.p)
     let currentPage = ref(Number(p.value > 1 ? p.value : 1))
 
+    // 监听当前页码有没有改变
     watch(
-      // 监听当前页码有没有改变
       () => currentPage.value,
       () => {
         if (currentPage.value < 2) {
@@ -28,6 +28,18 @@ export default {
           } else {
             router.push(props.url + 'p=' + currentPage.value)
           }
+        }
+      }
+    )
+
+    // 监听url,如果用户点击上一页时让分页按钮也同步
+    watch(
+      () => route.query.p,
+      () => {
+        if (route.query.p) {
+          currentPage.value = Number(route.query.p)
+        } else {
+          currentPage.value = 1
         }
       }
     )

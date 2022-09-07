@@ -1,58 +1,71 @@
 <template>
-  <div class="video">
-    <p class="title">{{ videoinfo.vname }}</p>
-    <div class="video-play">
-      <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/' + videoinfo.vurl" v-if="videoinfo.vurl"></video>
-      <!-- <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/video-1.mp4'"></video> -->
-      <!-- 选集列表 -->
-      <div class="video-film" v-if="videoinfo.film != ''">
-        <p class="video-film-text">选集</p>
-        <ul>
-          <li v-for="(item, index) in videoinfo.film" :key="item.filmnum" @click="filmClick(index)" :class="active == index ? 'current' : ''">{{ item.filmnum }}</li>
-        </ul>
-      </div>
-      <div class="video-introduce">
-        <div class="img-max">
-          <img :src="'http://127.0.0.1:8080/api/img/image/' + videoinfo.vimg" alt=" " />
+  <div class="video-box">
+    <div class="video">
+      <p class="title">{{ videoinfo.vname }}</p>
+      <div class="video-play">
+        <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/' + videoinfo.vurl" v-if="videoinfo.vurl"></video>
+        <!-- <video preload="metadata" controls="controls" :src="'http://127.0.0.1:8080/api/video/video-1.mp4'"></video> -->
+        <!-- 选集列表 -->
+        <div class="video-film" v-if="videoinfo.film != ''">
+          <p class="video-film-text">选集</p>
+          <ul>
+            <li v-for="(item, index) in videoinfo.film" :key="item.filmnum" @click="filmClick(index)" :class="active == index ? 'current' : ''">{{ item.filmnum }}</li>
+          </ul>
         </div>
-        <ul class="video-introduce-text">
-          <h1>{{ videoinfo.vname }} ({{ videoinfo.vtime }})</h1>
-          <h3>评分：{{ videoinfo.vfractionl }}</h3>
-          <h4>类型：{{ videoinfo.vclass }}</h4>
-          <h4>导演：{{ videoinfo.vdirector }}</h4>
-          <h4>编剧：{{ videoinfo.vscreenwriter }}</h4>
-          <h4>地区：{{ videoinfo.vcountry }}</h4>
-          <p>
-            {{ videoinfo.vexplain }}
-          </p>
-        </ul>
+        <div class="video-introduce">
+          <div class="img-max">
+            <img :src="'http://127.0.0.1:8080/api/img/image/' + videoinfo.vimg" alt=" " />
+          </div>
+          <ul class="video-introduce-text">
+            <h1>{{ videoinfo.vname }} ({{ videoinfo.vtime }})</h1>
+            <h3>评分：{{ videoinfo.vfractionl }}</h3>
+            <h4>类型：{{ videoinfo.vclass }}</h4>
+            <h4>导演：{{ videoinfo.vdirector }}</h4>
+            <h4>编剧：{{ videoinfo.vscreenwriter }}</h4>
+            <h4>地区：{{ videoinfo.vcountry }}</h4>
+            <p>
+              {{ videoinfo.vexplain }}
+            </p>
+          </ul>
+        </div>
       </div>
     </div>
+    <div class="comment-area">
+      <div class="top">
+        <p>评论区</p>
+      </div>
+      <div class="comment-publish">
+        <div class="user-img">
+          <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
+          <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
+        </div>
+        <div class="content">
+          <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+        </div>
+        <div class="btn">
+          <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
+        </div>
+      </div>
+    </div>
+    <!-- 评论区 -->
+    <UserComment></UserComment>
+    <!-- 底部评论框 -->
+    <transition name="ButtomContentTransition">
+      <div class="buttom-content" v-show="ButtomContentShow">
+        <div class="content">
+          <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+        </div>
+        <div class="btn">
+          <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
+        </div>
+      </div>
+    </transition>
   </div>
-  <div class="comment-area">
-    <div class="top">
-      <p>评论区</p>
-    </div>
-    <div class="comment-publish">
-      <div class="user-img">
-        <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
-        <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
-      </div>
-      <div class="content">
-        <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
-      </div>
-      <div class="btn">
-        <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
-      </div>
-    </div>
-  </div>
-  <!-- 评论区 -->
-  <UserComment></UserComment>
 </template>
 
 <script>
 import { useRoute, useRouter } from 'vue-router'
-import { onMounted, computed, ref, getCurrentInstance } from 'vue'
+import { onMounted, computed, ref, getCurrentInstance, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import Vuex from 'vuex'
 import UserComment from '../user-comments/user-comments.vue'
@@ -70,6 +83,7 @@ export default {
     let id = computed(() => route.query.id)
     let filmnum = computed(() => route.query.filmnum - 1)
     let active = ref(filmnum.value || 0)
+    let ButtomContentShow = ref(false)
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
@@ -78,6 +92,15 @@ export default {
       if (filmnum.value) {
         videoinfo.value.vurl = videoinfo.value.film[filmnum.value].filmdata
       }
+
+      // 监听滚动条高度，如果大于1750就让底部评论框显示
+      window.addEventListener('scroll', () => {
+        if (document.documentElement.scrollTop > 1750) {
+          ButtomContentShow.value = true
+        } else {
+          ButtomContentShow.value = false
+        }
+      })
     })
 
     // 发表评论
@@ -132,6 +155,7 @@ export default {
       videoinfo,
       textarea,
       active,
+      ButtomContentShow,
       publish,
       filmClick
     }
@@ -143,6 +167,9 @@ export default {
 </script>
 
 <style scoped>
+.video-box {
+  padding-bottom: 100px;
+}
 .video {
   width: 1200px;
   /* background-color: aqua; */
@@ -292,5 +319,43 @@ img {
   width: 500px;
   height: 100px;
   margin-right: 20px;
+}
+
+.buttom-content {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%);
+  height: 100px;
+  width: 900px;
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  background-color: #3d3d3d;
+}
+
+/* 底部评论框过渡动画 */
+.ButtomContentTransition-enter-from {
+  opacity: 0;
+}
+
+.ButtomContentTransition-enter-active {
+  transition: opacity 0.8s;
+}
+
+.ButtomContentTransition-enter-to {
+  opacity: 1;
+}
+
+.ButtomContentTransition-leave-from {
+  opacity: 1;
+}
+
+.ButtomContentTransition-leave-active {
+  transition: opacity 0.5s;
+}
+
+.ButtomContentTransition-leave-to {
+  opacity: 0;
 }
 </style>

@@ -34,7 +34,6 @@ export default {
     const router = useRouter()
     const route = useRoute()
     let p = computed(() => route.query.p)
-    let currentPage = ref(1)
 
     onMounted(async () => {
       let newNum = 20
@@ -71,7 +70,6 @@ export default {
 
     return {
       videoinfo,
-      currentPage,
       Page,
       p,
       govideo
