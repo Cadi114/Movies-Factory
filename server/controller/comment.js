@@ -1,18 +1,14 @@
 import db from '../db/index.js'
 
 export async function getAllcomment(req, res) {
-  let sql = `select * from videocomment,userinfo where uid = Id and vid = ${req.query.id} order by date desc `
+  // 获取页码，并计算获取数量
+  let newcount = req.query.commentpage * 20
+  let oldcount = newcount - 20
+  let sql = `select * from videocomment,userinfo where uid = Id and vid = ${req.query.id} order by date desc limit ${oldcount},${newcount}`
+  // 搜索此视频的总评论数量
+  const numsql = `select COUNT(*) AS NUM FROM videocomment where vid = ${req.query.id}`
   const [rows] = await db.query(sql)
-  // rows.forEach(async (item, index) => {
-  //   const [rows] = await db.query(`select * from userinfo,userreply where uid = Id and cid=${item.cid} order by date desc`)
-  //   item.userreply = rows
-  //   console.log(item)
-  // })
-  // for (item of rows) {
-  //   const [rows] = await db.query(`select * from userinfo,userreply where uid = Id and cid=${item.cid} order by date desc`)
-  //   item.userreply = rows
-  //   console.log(item)
-  // }
+  const [num] = await db.query(numsql)
   let arr = rows
 
   for (let i = 0; i < arr.length; i++) {
@@ -24,6 +20,7 @@ export async function getAllcomment(req, res) {
   res.send({
     status: 0,
     message: '获取评论列表成功',
-    data: arr
+    data: arr,
+    count: num
   })
 }

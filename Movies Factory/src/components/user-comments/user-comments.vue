@@ -1,9 +1,9 @@
 <template>
   <div class="usercom">
     <div class="top">
-      <p>评论 ({{ comments.length }})</p>
+      <p>评论 ({{ commentCount }})</p>
     </div>
-    <div v-if="comments.length">
+    <div>
       <div class="usercom-text" v-for="(item, index) in comments" :itemData="item" :key="item.cid">
         <div class="userimg">
           <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + item.user_pic" alt="" v-if="item.user_pic" />
@@ -60,14 +60,16 @@
     </div>
 
     <!-- 暂无评论 -->
-    <div class="nocomments" v-else>
-      <p>还没有评论</p>
+    <div class="nocomments">
+      <p v-if="commentCount == 0">还没有评论</p>
+      <p v-else-if="commentCount > 20 && loding">加载中</p>
+      <p v-else>没有更多评论</p>
     </div>
   </div>
 </template>
 
 <script>
-import { onMounted, computed, ref, getCurrentInstance } from 'vue'
+import { onMounted, computed, ref, getCurrentInstance, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import Vuex from 'vuex'
 import { ElMessage } from 'element-plus'
@@ -87,11 +89,53 @@ export default {
     let targetUid = ref()
     let targetCid = ref()
     let replyTextarea = ref('')
+    let commentPage = 1
+    let commentCount = ref('')
+
+    // 评论加载中
+    let loding = ref(true)
+
+    // 节流阀
+    let flag = false
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
-      let data = await proxy.$api.getdata.getComments(id.value)
+      let data = await proxy.$api.getdata.getComments(id.value, commentPage)
       comments.value = data.data.data || []
+      // 获取评论总数
+      commentCount.value = data.data.count[0].NUM || 0
+
+      // 查看滚动条
+      window.addEventListener('scroll', async () => {
+        // 判断是否触底
+        if (document.documentElement.scrollTop + document.documentElement.clientHeight > document.documentElement.offsetHeight) {
+          if (flag) {
+            return
+          }
+          flag = true
+          commentPage++
+          // 再次发送评论列表请求
+          let newdata = await proxy.$api.getdata.getComments(id.value, commentPage)
+          let arr = newdata.data.data || []
+          // 判断是否还有数据，有的话继续打开节流阀
+          if (arr.length > 0) {
+            let newcomments = [...toRaw(comments.value), ...arr]
+            // 替代原来的评论列表
+            comments.value = newcomments
+            // 打开节流阀
+            flag = false
+
+            // 判断是否到末尾
+            if (arr.length < 20) {
+              // 关闭loding
+              loding.value = false
+              // 关闭节流阀
+              flag = true
+              return
+            }
+          }
+        }
+      })
     })
 
     // 删除评论
@@ -207,6 +251,8 @@ export default {
       active,
       targetName,
       replyTextarea,
+      commentCount,
+      loding,
       deletecom,
       replyshow,
       reply,

@@ -89,12 +89,14 @@ export default {
       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
       let data = await proxy.$api.getdata.getVideoInfoID(id.value)
       videoinfo.value = data.data.data
+      // 选集
       if (filmnum.value) {
         videoinfo.value.vurl = videoinfo.value.film[filmnum.value].filmdata
       }
 
       // 监听滚动条高度，如果大于1750就让底部评论框显示
       window.addEventListener('scroll', () => {
+        // console.log(document.documentElement.offsetHeight, document.documentElement.scrollTop, document.documentElement.clientHeight)
         if (document.documentElement.scrollTop > 1750) {
           ButtomContentShow.value = true
         } else {
