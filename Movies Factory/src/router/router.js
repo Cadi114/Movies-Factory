@@ -8,7 +8,9 @@ const router = createRouter({
   history: createWebHashHistory(import.meta.env.VITE_APP_BASE_API),
   routes: [
     { path: '/', redirect: '/home' },
+    { path: '/:pathMatch(.*)', redirect: '/404' },
     { path: '/home', component: Home },
+    { path: '/404', component: () => import('../components/NotFound/NotFound.vue') },
     { path: '/login', component: () => import('../components/login/Login.vue') },
     { path: '/video', component: () => import('../components/video/Video.vue') },
     { path: '/screen', component: () => import('../components/screen/Screen.vue') },

@@ -63,4 +63,22 @@ function postAddImg(data = {}) {
   })
 }
 
-export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply }
+// 添加观影记录
+function postAddVideoList(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/addvidolist',
+    data
+  })
+}
+
+// 获取最近观看列表
+function postUserVideoList(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/uservideolist',
+    data
+  })
+}
+
+export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList }

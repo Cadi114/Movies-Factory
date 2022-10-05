@@ -79,7 +79,7 @@ export default {
     }
 
     function gouserinfo() {
-      router.push('/userinfo')
+      router.push('/userinfo?uid=' + user.value.Id)
     }
 
     function goclass(val) {

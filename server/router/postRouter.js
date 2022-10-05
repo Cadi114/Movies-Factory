@@ -4,6 +4,8 @@ import { postDeleteComment } from '../controller/deletecomment.js'
 import { getAddreply } from '../controller/addreply.js'
 import { postAllimg } from '../controller/addimg.js'
 import { postDeleteReply } from '../controller/postDeleteReply.js'
+import { postAddVideoList } from '../controller/addVideoList.js'
+import { getUserVidoList } from '../controller/getUserVidoList.js'
 
 const router = new express.Router()
 
@@ -25,5 +27,9 @@ router.post('/addreply', getAddreply)
 router.post('/addimg', postAllimg)
 // 删除回复
 router.post('/deletereply', postDeleteReply)
+// 添加观看记录
+router.post('/addvidolist', postAddVideoList)
+// 获取最近观看列表
+router.post('/uservideolist', getUserVidoList)
 
 export default router

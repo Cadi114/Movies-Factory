@@ -2,7 +2,7 @@
   <div class="bootom">
     <p>Cadi</p>
     <p>973872387@qq.com</p>
-    <p>@v1.1.8</p>
+    <p>@v1.2.0</p>
   </div>
 </template>
 

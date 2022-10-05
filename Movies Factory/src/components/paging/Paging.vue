@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 export default {
@@ -20,7 +20,8 @@ export default {
     watch(
       () => currentPage.value,
       () => {
-        if (currentPage.value < 2) {
+        if (currentPage.value == 1) {
+          console.log(props.url)
           router.push(props.url)
         } else {
           if (Object.keys(route.query).length > 0) {
@@ -32,17 +33,21 @@ export default {
       }
     )
 
-    // 监听url,如果用户点击上一页时让分页按钮也同步
-    watch(
-      () => route.query.p,
-      () => {
-        if (route.query.p) {
-          currentPage.value = Number(route.query.p)
-        } else {
-          currentPage.value = 1
-        }
+    const popstateFun = () => {
+      if (route.query.p) {
+        currentPage.value = Number(route.query.p)
+      } else {
+        currentPage.value = 1
       }
-    )
+    }
+
+    // 浏览器控制按钮前进后退触发函数
+    window.addEventListener('popstate', popstateFun, false)
+
+    onUnmounted(() => {
+      // 避免堆栈溢出，多次创建、多次触发
+      window.removeEventListener('popstate', popstateFun, false)
+    })
 
     return {
       page,

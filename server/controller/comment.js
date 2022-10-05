@@ -10,7 +10,6 @@ export async function getAllcomment(req, res) {
   const [rows] = await db.query(sql)
   const [num] = await db.query(numsql)
   let arr = rows
-
   for (let i = 0; i < arr.length; i++) {
     const [rows] = await db.query(`select * from userinfo,userreply where uid = Id and cid=${arr[i].cid} order by date desc`)
     // 数组翻转 让最新发布的回复保持在最下面

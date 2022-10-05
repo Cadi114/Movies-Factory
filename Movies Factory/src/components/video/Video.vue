@@ -65,7 +65,7 @@
 
 <script>
 import { useRoute, useRouter } from 'vue-router'
-import { onMounted, computed, ref, getCurrentInstance, watch } from 'vue'
+import { onMounted, computed, ref, getCurrentInstance, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import Vuex from 'vuex'
 import UserComment from '../user-comments/user-comments.vue'
@@ -73,6 +73,7 @@ import moment from 'moment'
 
 export default {
   name: 'Video',
+  components: { UserComment },
   setup() {
     let { proxy } = getCurrentInstance()
     const route = useRoute()
@@ -85,6 +86,17 @@ export default {
     let active = ref(filmnum.value || 0)
     let ButtomContentShow = ref(false)
 
+    const srollFun = () => {
+      if (document.documentElement.scrollTop > 1750) {
+        ButtomContentShow.value = true
+      } else {
+        ButtomContentShow.value = false
+      }
+    }
+
+    // 监听滚动条高度，如果大于1750就让底部评论框显示
+    window.addEventListener('scroll', srollFun)
+
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
       let data = await proxy.$api.getdata.getVideoInfoID(id.value)
@@ -93,16 +105,15 @@ export default {
       if (filmnum.value) {
         videoinfo.value.vurl = videoinfo.value.film[filmnum.value].filmdata
       }
+      // 判断是否有登陆账号
+      if (user) {
+        proxy.$api.postdata.postAddVideoList({ userId: user.value.Id, videoId: id.value }).then(res => console.log(res))
+      }
+    })
 
-      // 监听滚动条高度，如果大于1750就让底部评论框显示
-      window.addEventListener('scroll', () => {
-        // console.log(document.documentElement.offsetHeight, document.documentElement.scrollTop, document.documentElement.clientHeight)
-        if (document.documentElement.scrollTop > 1750) {
-          ButtomContentShow.value = true
-        } else {
-          ButtomContentShow.value = false
-        }
-      })
+    onUnmounted(() => {
+      // 销毁组件
+      window.removeEventListener('scroll', srollFun)
     })
 
     // 发表评论
@@ -161,9 +172,6 @@ export default {
       publish,
       filmClick
     }
-  },
-  components: {
-    UserComment
   }
 }
 </script>

@@ -5,7 +5,7 @@
     </div>
     <div>
       <div class="usercom-text" v-for="(item, index) in comments" :itemData="item" :key="item.cid">
-        <div class="userimg">
+        <div class="userimg" @click="goUserInfo(item.Id)">
           <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + item.user_pic" alt="" v-if="item.user_pic" />
           <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" v-else />
         </div>
@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import { onMounted, computed, ref, getCurrentInstance, toRaw } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, computed, ref, getCurrentInstance, toRaw, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Vuex from 'vuex'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
@@ -80,6 +80,7 @@ export default {
   setup() {
     let { proxy } = getCurrentInstance()
     const route = useRoute()
+    const router = useRouter()
     const store = Vuex.useStore()
     const user = computed(() => store.state.userInfo)
     let id = computed(() => route.query.id)
@@ -98,6 +99,38 @@ export default {
     // 节流阀
     let flag = false
 
+    // 触底获取更多评论函数
+    async function getMoreComment() {
+      // 判断是否触底
+      if (document.documentElement.scrollTop + document.documentElement.clientHeight > document.documentElement.offsetHeight) {
+        if (flag) {
+          return
+        }
+        flag = true
+        commentPage++
+        // 再次发送评论列表请求
+        let newdata = await proxy.$api.getdata.getComments(id.value, commentPage)
+        let arr = newdata.data.data || []
+        // 判断是否还有数据，有的话继续打开节流阀
+        if (arr.length > 0) {
+          let newcomments = [...toRaw(comments.value), ...arr]
+          // 替代原来的评论列表
+          comments.value = newcomments
+          // 打开节流阀
+          flag = false
+
+          // 判断是否到末尾
+          if (arr.length < 20) {
+            // 关闭loding
+            loding.value = false
+            // 关闭节流阀
+            flag = true
+            return
+          }
+        }
+      }
+    }
+
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
       let data = await proxy.$api.getdata.getComments(id.value, commentPage)
@@ -105,37 +138,13 @@ export default {
       // 获取评论总数
       commentCount.value = data.data.count[0].NUM || 0
 
-      // 查看滚动条
-      window.addEventListener('scroll', async () => {
-        // 判断是否触底
-        if (document.documentElement.scrollTop + document.documentElement.clientHeight > document.documentElement.offsetHeight) {
-          if (flag) {
-            return
-          }
-          flag = true
-          commentPage++
-          // 再次发送评论列表请求
-          let newdata = await proxy.$api.getdata.getComments(id.value, commentPage)
-          let arr = newdata.data.data || []
-          // 判断是否还有数据，有的话继续打开节流阀
-          if (arr.length > 0) {
-            let newcomments = [...toRaw(comments.value), ...arr]
-            // 替代原来的评论列表
-            comments.value = newcomments
-            // 打开节流阀
-            flag = false
+      // 监听滚动条
+      window.addEventListener('scroll', getMoreComment)
+    })
 
-            // 判断是否到末尾
-            if (arr.length < 20) {
-              // 关闭loding
-              loding.value = false
-              // 关闭节流阀
-              flag = true
-              return
-            }
-          }
-        }
-      })
+    onUnmounted(() => {
+      // 卸载事件
+      window.removeEventListener('scroll', getMoreComment)
     })
 
     // 删除评论
@@ -234,6 +243,11 @@ export default {
       active.value = -1
     }
 
+    // 头像点击事件
+    function goUserInfo(objuid) {
+      router.push('/userinfo?uid=' + objuid)
+    }
+
     // watch(
     //   // () => comments.value,
     //   // async () => {
@@ -256,7 +270,8 @@ export default {
       deletecom,
       replyshow,
       reply,
-      deleteReply
+      deleteReply,
+      goUserInfo
     }
   }
 }
@@ -304,6 +319,7 @@ export default {
   overflow: hidden;
   border: 3px solid #fff;
   margin: 0 20px 20px 20px;
+  cursor: pointer;
 }
 
 img {
@@ -410,6 +426,7 @@ img {
   border: 2px solid #fff;
   margin-right: 10px;
 }
+
 .user-content-reply {
   padding-top: 8px;
   color: #fff;
