@@ -48,7 +48,7 @@ export default {
     })
 
     function govideo(vid) {
-      router.push('/video?id=' + vid)
+      router.push('/video/' + vid)
     }
 
     watch(

@@ -81,7 +81,7 @@ export default {
     const store = Vuex.useStore()
     const user = computed(() => store.state.userInfo)
     let videoinfo = ref({})
-    let id = computed(() => route.query.id)
+    let id = route.params.vid
     let filmnum = computed(() => route.query.filmnum - 1)
     let active = ref(filmnum.value || 0)
     let ButtomContentShow = ref(false)
@@ -99,15 +99,15 @@ export default {
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
-      let data = await proxy.$api.getdata.getVideoInfoID(id.value)
+      let data = await proxy.$api.getdata.getVideoInfoID(id)
       videoinfo.value = data.data.data
       // 选集
       if (filmnum.value) {
         videoinfo.value.vurl = videoinfo.value.film[filmnum.value].filmdata
       }
       // 判断是否有登陆账号
-      if (user) {
-        proxy.$api.postdata.postAddVideoList({ userId: user.value.Id, videoId: id.value }).then(res => console.log(res))
+      if (user.value.Id) {
+        proxy.$api.postdata.postAddVideoList({ userId: user.value.Id, videoId: id }).then(res => console.log(res))
       }
     })
 
@@ -131,7 +131,7 @@ export default {
           await await proxy.$api.postdata
             .postRelease({
               uid: user.value.Id,
-              vid: id.value,
+              vid: id,
               content: textarea.value,
               date: moment().format('YYYY-MM-DD HH:mm')
             })
@@ -157,9 +157,9 @@ export default {
       videoinfo.value.vurl = videoinfo.value.film[index].filmdata
       active.value = index
       if (videoinfo.value.film[index].filmnum === 1) {
-        router.push('/video?id=' + id.value)
+        router.push('/video/' + id)
       } else {
-        router.push('/video?id=' + id.value + '&filmnum=' + videoinfo.value.film[index].filmnum)
+        router.push('/video/' + id + '?filmnum=' + videoinfo.value.film[index].filmnum)
       }
     }
 

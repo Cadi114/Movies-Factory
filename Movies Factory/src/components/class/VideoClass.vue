@@ -61,8 +61,7 @@ export default {
       )
 
     function govideo(vid) {
-      let id = vid
-      router.push('/video?id=' + id)
+      router.push('/video/' + vid)
     }
 
     return {

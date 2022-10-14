@@ -37,10 +37,10 @@ function getAllscreen(val, data = {}) {
 }
 
 // 获取评论api
-function getComments(id, page, data = {}) {
+function getComments(id, page, Commentsorting, data = {}) {
   return request({
     method: 'GET',
-    url: '/api/comment?id=' + id + '&commentpage=' + page,
+    url: '/api/comment?id=' + id + '&commentpage=' + page + '&Commentsorting=' + Commentsorting,
     data
   })
 }

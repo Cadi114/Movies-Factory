@@ -1,7 +1,9 @@
 <template>
   <div class="usercom">
     <div class="top">
-      <p>评论 ({{ commentCount }})</p>
+      <span class="commentCount">评论 ({{ commentCount }})</span>
+      <span :class="Commentsorting ? 'span-action' : ''" @click="changeCommentsorting(true)">按热度排序</span>
+      <span :class="Commentsorting ? '' : 'span-action'" @click="changeCommentsorting(false)">按时间排序</span>
     </div>
     <div>
       <div class="usercom-text" v-for="(item, index) in comments" :itemData="item" :key="item.cid">
@@ -16,6 +18,13 @@
               <p>{{ item.content }}</p>
               <h5>{{ item.date }}</h5>
               <h5 class="reply" @click="replyshow(index, item.username, item.uid, item.cid)">回复</h5>
+              <svg class="icon" aria-hidden="true" @click="Praise(item)" v-if="PraiseShow(item)">
+                <use xlink:href="#icon-dianzan"></use>
+              </svg>
+              <svg class="icon" aria-hidden="true" @click="cancelPraise(item)" v-else>
+                <use xlink:href="#icon-dianzan_kuai"></use>
+              </svg>
+              <h5 :class="PraiseShow(item) ? 'praise-quantity' : 'praise-quantity Highlight'" v-if="item.praiseuserslist && item.praiseuserslist.length > 0">{{ item.praiseuserslist.length }}</h5>
               <h5 class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</h5>
             </div>
             <!-- 回复列表 -->
@@ -83,7 +92,7 @@ export default {
     const router = useRouter()
     const store = Vuex.useStore()
     const user = computed(() => store.state.userInfo)
-    let id = computed(() => route.query.id)
+    let id = route.params.vid
     let comments = ref([])
     let active = ref(-1)
     let targetName = ref('')
@@ -92,6 +101,7 @@ export default {
     let replyTextarea = ref('')
     let commentPage = 1
     let commentCount = ref('')
+    let Commentsorting = ref(true)
 
     // 评论加载中
     let loding = ref(true)
@@ -109,7 +119,7 @@ export default {
         flag = true
         commentPage++
         // 再次发送评论列表请求
-        let newdata = await proxy.$api.getdata.getComments(id.value, commentPage)
+        let newdata = await proxy.$api.getdata.getComments(id, commentPage, Commentsorting.value)
         let arr = newdata.data.data || []
         // 判断是否还有数据，有的话继续打开节流阀
         if (arr.length > 0) {
@@ -133,7 +143,7 @@ export default {
 
     onMounted(async () => {
       // let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
-      let data = await proxy.$api.getdata.getComments(id.value, commentPage)
+      let data = await proxy.$api.getdata.getComments(id, commentPage, Commentsorting.value)
       comments.value = data.data.data || []
       // 获取评论总数
       commentCount.value = data.data.count[0].NUM || 0
@@ -245,7 +255,71 @@ export default {
 
     // 头像点击事件
     function goUserInfo(objuid) {
-      router.push('/userinfo?uid=' + objuid)
+      router.push('/userinfo/' + objuid)
+    }
+
+    // 点赞
+    async function Praise(item) {
+      if (user.value.Id) {
+        let res = await proxy.$api.postdata.postAddPraise({ cid: item.cid, uid: user.value.Id })
+        if (res.data.code === 200) {
+          // 判断是否有数组
+          if (item.praiseuserslist) {
+            item.praiseuserslist.push(user.value.Id)
+            console.log(item.praiseuserslist.length)
+          } else {
+            // 没有数组则创建一个新数组
+            item.praiseuserslist = new Array()
+            item.praiseuserslist.push(user.value.Id)
+            console.log(item.praiseuserslist)
+          }
+        }
+      } else {
+        ElMessage.error('请先登录')
+      }
+    }
+
+    // 是否已点赞
+    function PraiseShow(item) {
+      if (user.value.Id) {
+        if (item.praiseuserslist) {
+          return !item.praiseuserslist.includes(user.value.Id)
+        } else {
+          return true
+        }
+      }
+      return true
+    }
+
+    // 取消点赞
+    async function cancelPraise(item) {
+      if (user.value.Id) {
+        if (item.praiseuserslist) {
+          let res = await proxy.$api.postdata.postCancelPraise({ cid: item.cid, uid: user.value.Id })
+          if (res.data.code === 200) {
+            item.praiseuserslist.splice(item.praiseuserslist.indexOf(user.value.Id), 1)
+          }
+        }
+      }
+      return
+    }
+
+    // 更改评论排序
+    async function changeCommentsorting(val) {
+      if (Commentsorting.value === val) {
+        return
+      }
+      Commentsorting.value = val
+      commentPage = 1
+      let data = await proxy.$api.getdata.getComments(id, commentPage, Commentsorting.value)
+      comments.value = data.data.data || []
+      // 获取评论总数
+      commentCount.value = data.data.count[0].NUM || 0
+      // 开启loding
+      loding.value = true
+      // 开启节流阀
+      flag = false
+      active.value = -1
     }
 
     // watch(
@@ -267,11 +341,16 @@ export default {
       replyTextarea,
       commentCount,
       loding,
+      Commentsorting,
       deletecom,
       replyshow,
       reply,
       deleteReply,
-      goUserInfo
+      goUserInfo,
+      Praise,
+      PraiseShow,
+      cancelPraise,
+      changeCommentsorting
     }
   }
 }
@@ -303,8 +382,23 @@ export default {
   width: 100%;
   border-bottom: 1px solid #fff;
   color: #a8a8a8;
-  font-size: 20px;
   margin-bottom: 20px;
+}
+
+.top .commentCount {
+  color: #a8a8a8;
+  font-size: 20px;
+  cursor: default;
+}
+
+.top span {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.span-action {
+  color: #fff;
+  font-weight: 600;
 }
 
 .usercom-text {
@@ -460,5 +554,24 @@ img {
   margin-left: 5px;
   color: #a8a8a8;
   cursor: pointer;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  left: 155px;
+  bottom: 5px;
+  cursor: pointer;
+}
+.praise-quantity {
+  position: absolute;
+  left: 180px;
+  color: #a8a8a8;
+  cursor: pointer;
+}
+
+.Highlight {
+  color: #1296db;
 }
 </style>

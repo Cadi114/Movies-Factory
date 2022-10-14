@@ -12,10 +12,10 @@ const router = createRouter({
     { path: '/home', component: Home },
     { path: '/404', component: () => import('../components/NotFound/NotFound.vue') },
     { path: '/login', component: () => import('../components/login/Login.vue') },
-    { path: '/video', component: () => import('../components/video/Video.vue') },
+    { path: '/video/:vid', component: () => import('../components/video/Video.vue') },
     { path: '/screen', component: () => import('../components/screen/Screen.vue') },
     { path: '/class', component: () => import('../components/class/VideoClass.vue') },
-    { path: '/userinfo', component: () => import('../components/userinfo/Userinfo.vue') }
+    { path: '/userinfo/:uid', component: () => import('../components/userinfo/Userinfo.vue') }
   ]
 })
 

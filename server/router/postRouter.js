@@ -6,6 +6,8 @@ import { postAllimg } from '../controller/addimg.js'
 import { postDeleteReply } from '../controller/postDeleteReply.js'
 import { postAddVideoList } from '../controller/addVideoList.js'
 import { getUserVidoList } from '../controller/getUserVidoList.js'
+import { postAddPraise } from '../controller/addpraise.js'
+import { postCancelPraise } from '../controller/cancelPraise.js'
 
 const router = new express.Router()
 
@@ -31,5 +33,9 @@ router.post('/deletereply', postDeleteReply)
 router.post('/addvidolist', postAddVideoList)
 // 获取最近观看列表
 router.post('/uservideolist', getUserVidoList)
+// 添加点赞数量
+router.post('/addpraise', postAddPraise)
+// 取消点赞
+router.post('/cancelpraise', postCancelPraise)
 
 export default router

@@ -2,8 +2,7 @@
   <div class="carousel">
     <el-carousel indicator-position="outside" trigger="click" height="500px">
       <el-carousel-item v-for="item in carouselinfo" :itemData="item" :key="item.imgname">
-        <a :href="'http://localhost:3000/#/video?id='+item.id"><img :src="'./imgs/guanggao'+item.imgname+'.jpg'" alt=""></a>
-
+        <a :href="'http://localhost:3000/#/video/' + item.id"><img :src="'./imgs/guanggao' + item.imgname + '.jpg'" alt="" /></a>
       </el-carousel-item>
     </el-carousel>
   </div>

@@ -16,7 +16,11 @@
         </div>
       </li>
       <li class="search">
-        <a href="javascript:;" @click.stop="searchshow = !searchshow"></a>
+        <a class="icon-a" href="javascript:;" @click.stop="searchshow = !searchshow">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-sousuotianchong"></use>
+          </svg>
+        </a>
         <transition name="searchShowTransition">
           <div class="search-input" @click.stop="true" v-show="searchshow">
             <input type="text" placeholder="请输入搜索内容" v-model.trim="inputval" ref="inputret" />
@@ -79,7 +83,7 @@ export default {
     }
 
     function gouserinfo() {
-      router.push('/userinfo?uid=' + user.value.Id)
+      router.push('/userinfo/' + user.value.Id)
     }
 
     function goclass(val) {
@@ -387,5 +391,18 @@ a {
 
 .expandTransition-leave-to {
   height: 0;
+}
+
+.icon-a {
+  position: relative;
+}
+
+.icon {
+  width: 35px;
+  height: 35px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, 50%);
 }
 </style>

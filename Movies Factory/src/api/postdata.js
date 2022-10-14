@@ -81,4 +81,22 @@ function postUserVideoList(data = {}) {
   })
 }
 
-export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList }
+// 点赞按钮
+function postAddPraise(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/addpraise',
+    data
+  })
+}
+
+// 取消点赞
+function postCancelPraise(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/cancelpraise',
+    data
+  })
+}
+
+export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList, postAddPraise, postCancelPraise }

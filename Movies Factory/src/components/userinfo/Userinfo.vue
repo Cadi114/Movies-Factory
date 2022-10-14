@@ -21,7 +21,7 @@
       <!-- 最近观看列表 -->
       <p>最近观看</p>
       <div class="uservideolist">
-        <el-scrollbar v-if="videoList.length > 0">
+        <el-scrollbar v-if="videoList.length > 0" always>
           <div class="scrollbar-flex-content">
             <div class="video-box" v-for="item in videoList" :key="item.vid" @click="goVideo(item.vid)">
               <a class="mask"></a>
@@ -53,13 +53,13 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const myuser = computed(() => store.state.userInfo)
-    const uid = computed(() => route.query.uid)
+    const uid = route.params.uid
     let user = ref({})
     let videoList = ref([])
 
-    if (!myuser.value.Id) {
-      router.push('/login')
-    }
+    // if (!myuser.value.Id) {
+    //   router.push('/login')
+    // }
 
     let userinfo = reactive({
       id: myuser.value.Id,
@@ -106,20 +106,19 @@ export default {
 
     // 退出登录
     function logout() {
-      console.log('退出登录')
       store.commit('removeUserinfo')
       // 调用完成后直接刷新页面
-      location.reload()
+      router.push('/login')
     }
 
     // 跳转到视频页面
     function goVideo(vid) {
-      router.push('/video?id=' + vid)
+      router.push('/video/' + vid)
     }
 
     onMounted(async () => {
       // 获取用户信息
-      const data = await getuserinfo(uid.value)
+      const data = await getuserinfo(uid)
       user.value = data.data.userinfo[0]
       // 获取此用户的近期观看列表
       console.log(JSON.parse(user.value.videolist) != null)
@@ -224,6 +223,7 @@ input {
   background: #323232;
   padding: 15px;
   position: relative;
+  user-select: none;
 }
 
 .video-box {
