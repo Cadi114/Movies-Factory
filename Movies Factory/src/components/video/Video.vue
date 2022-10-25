@@ -1,5 +1,5 @@
 <template>
-  <div class="video-box">
+  <div class="video-box" v-if="videoinfo.vname ? true : false">
     <div class="video">
       <p class="title">{{ videoinfo.vname }}</p>
       <div class="video-play">
@@ -34,30 +34,44 @@
       <div class="top">
         <p>评论区</p>
       </div>
-      <div class="comment-publish">
+      <!-- <div class="comment-publish">
         <div class="user-img">
           <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
           <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
         </div>
         <div class="content">
           <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+          <el-button class="emoji-btn" type="primary" style="height: 25px" @click="emojibtn">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-biaoqing"></use>
+            </svg>
+            表情
+          </el-button>
         </div>
         <div class="btn">
           <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
         </div>
-      </div>
+      </div> -->
+      <Commentbox :vid="id" :CommentType="1"></Commentbox>
     </div>
     <!-- 评论区 -->
     <UserComment></UserComment>
     <!-- 底部评论框 -->
     <transition name="ButtomContentTransition">
       <div class="buttom-content" v-show="ButtomContentShow">
-        <div class="content">
+        <!-- <div class="content">
           <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+          <el-button class="emoji-btn" type="primary" style="height: 25px" @click="emojibtn">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-biaoqing"></use>
+            </svg>
+            表情
+          </el-button>
         </div>
         <div class="btn">
           <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
-        </div>
+        </div> -->
+        <Commentbox :vid="id" :CommentType="1"></Commentbox>
       </div>
     </transition>
   </div>
@@ -69,12 +83,14 @@ import { onMounted, computed, ref, getCurrentInstance, watch, onUnmounted } from
 import { ElMessage } from 'element-plus'
 import Vuex from 'vuex'
 import UserComment from '../user-comments/user-comments.vue'
+import Commentbox from '../commentbox/Commentbox.vue'
 import moment from 'moment'
 
 export default {
   name: 'Video',
-  components: { UserComment },
-  setup() {
+  components: { UserComment, Commentbox },
+
+  setup(props) {
     let { proxy } = getCurrentInstance()
     const route = useRoute()
     const router = useRouter()
@@ -114,12 +130,19 @@ export default {
     onUnmounted(() => {
       // 销毁组件
       window.removeEventListener('scroll', srollFun)
+      store.commit('changeInput', '')
     })
 
     // 发表评论
-    let textarea = ref('')
+    // let textarea = ref('')
     // 发表日期
     // let date = moment().format('YYYY-MM-DD HH:mm')
+
+    // 修改input
+    // function changeComment(val) {
+    //   console.log(val)
+    //   textarea.value = val
+    // }
 
     // 发布评论
     async function publish() {
@@ -163,14 +186,20 @@ export default {
       }
     }
 
+    // 表情按钮点击事件
+    function emojibtn() {
+      console.log('表情按钮')
+    }
+
     return {
       user,
       videoinfo,
-      textarea,
+      id,
       active,
       ButtomContentShow,
       publish,
-      filmClick
+      filmClick,
+      emojibtn
     }
   }
 }
@@ -180,6 +209,7 @@ export default {
 .video-box {
   padding-bottom: 100px;
 }
+
 .video {
   width: 1200px;
   /* background-color: aqua; */
@@ -250,6 +280,7 @@ video {
   background-color: #323232;
   border: #a8a8a8 solid 2px;
 }
+
 .img-max {
   width: 280px;
   height: 355px;
@@ -294,6 +325,7 @@ img {
   width: 1200px;
   margin: 0 auto;
   margin-top: 60px;
+  margin-bottom: 50px;
   border-bottom: 3px solid #fff;
   font-size: 36px;
   color: #fff;
@@ -306,7 +338,7 @@ img {
 .comment-publish {
   width: 700px;
   margin: 0 auto;
-  margin-top: 50px;
+  /* margin-top: 50px; */
   display: flex;
 }
 
@@ -320,6 +352,7 @@ img {
   margin-right: 20px;
   margin-top: 5px;
 }
+
 .user-img img {
   width: 100%;
   height: 100%;
@@ -341,6 +374,7 @@ img {
   display: flex;
   justify-content: center;
   padding-top: 10px;
+  padding-bottom: 10px;
   background-color: #3d3d3d;
 }
 
@@ -367,5 +401,13 @@ img {
 
 .ButtomContentTransition-leave-to {
   opacity: 0;
+}
+
+.emoji-btn {
+  margin-top: 5px;
+}
+
+.icon {
+  width: 20px;
 }
 </style>

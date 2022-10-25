@@ -51,7 +51,7 @@
           </div>
           <!-- 回复框 -->
           <div :class="active == index ? 'show' : 'reply-text'">
-            <div class="comment-publish">
+            <!-- <div class="comment-publish">
               <div class="user-img">
                 <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
                 <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
@@ -62,7 +62,8 @@
               <div class="btn">
                 <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
               </div>
-            </div>
+            </div> -->
+            <Commentbox :vid="id" :CommentType="0" :targetinfo="targetinfo" @CommentReplyAdd="CommentReplyAdd"></Commentbox>
           </div>
         </div>
       </div>
@@ -83,9 +84,12 @@ import { useRoute, useRouter } from 'vue-router'
 import Vuex from 'vuex'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
+import Commentbox from '../commentbox/Commentbox.vue'
 
 export default {
   name: 'UserComments',
+  components: { Commentbox },
+
   setup() {
     let { proxy } = getCurrentInstance()
     const route = useRoute()
@@ -98,6 +102,7 @@ export default {
     let targetName = ref('')
     let targetUid = ref()
     let targetCid = ref()
+    let targetinfo = ref({})
     let replyTextarea = ref('')
     let commentPage = 1
     let commentCount = ref('')
@@ -201,6 +206,11 @@ export default {
       targetName.value = name
       targetUid.value = uid
       targetCid.value = cid
+      targetinfo.value = {
+        targetName: name,
+        targetUid: uid,
+        targetCid: cid
+      }
     }
 
     //发起回复
@@ -248,6 +258,24 @@ export default {
       })
       // 清空回复框
       replyTextarea.value = ''
+
+      // 让回复框隐藏
+      active.value = -1
+    }
+
+    //为当前回复列表添加新数据
+    function CommentReplyAdd(val) {
+      comments.value[active.value].userreply.push({
+        cid: targetCid.value,
+        uid: user.value.Id,
+        content: val,
+        date: moment().format('YYYY-MM-DD HH:mm'),
+        objectname: targetName.value,
+        objectuid: targetUid.value,
+        uid: user.value.Id,
+        user_pic: user.value.user_pic,
+        username: user.value.username
+      })
 
       // 让回复框隐藏
       active.value = -1
@@ -336,8 +364,10 @@ export default {
     return {
       comments,
       user,
+      id,
       active,
       targetName,
+      targetinfo,
       replyTextarea,
       commentCount,
       loding,
@@ -350,7 +380,8 @@ export default {
       Praise,
       PraiseShow,
       cancelPraise,
-      changeCommentsorting
+      changeCommentsorting,
+      CommentReplyAdd
     }
   }
 }

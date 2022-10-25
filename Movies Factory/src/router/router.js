@@ -1,11 +1,12 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import { computed } from 'vue'
 import Home from '../components/home/Home.vue'
 import Vuex from 'vuex'
 
 const router = createRouter({
   // 指定路由工作模式
-  history: createWebHashHistory(import.meta.env.VITE_APP_BASE_API),
+  // history: createWebHashHistory(import.meta.env.VITE_APP_BASE_API),
+  history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/home' },
     { path: '/:pathMatch(.*)', redirect: '/404' },
