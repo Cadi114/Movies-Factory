@@ -135,6 +135,7 @@ export default {
       () => props.targetinfo,
       (newVal, oldVal) => {
         targetinfo.value = newVal
+        replyTextarea.value = ''
       },
       {
         deep: true
