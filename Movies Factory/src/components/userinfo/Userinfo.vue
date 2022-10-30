@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import { computed, reactive, getCurrentInstance, onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { computed, reactive, getCurrentInstance, onMounted, ref, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import Vuex from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
 import getuserinfo from '../modular/userinfo.js'
@@ -56,10 +56,6 @@ export default {
     const uid = route.params.uid
     let user = ref({})
     let videoList = ref([])
-
-    // if (!myuser.value.Id) {
-    //   router.push('/login')
-    // }
 
     let userinfo = reactive({
       id: myuser.value.Id,
@@ -98,17 +94,34 @@ export default {
           const newUserinfo = await proxy.$api.getdata.getUserInfo(userinfo.id)
           // 更新用户信息
           store.commit('setUser', newUserinfo.data.userinfo[0])
+          // 刷新页面
+          location.reload()
         }
       } else {
         ElMessage.error('请上传10M以内的图片')
       }
     }
 
+    watch(
+      () => route.params.uid,
+      () => {
+        location.reload() //刷新网页
+      }
+    )
+
     // 退出登录
     function logout() {
-      store.commit('removeUserinfo')
-      // 调用完成后直接刷新页面
-      router.push('/login')
+      ElMessageBox.confirm('是否确定退出该账号？', '退出登录', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          store.commit('removeUserinfo')
+          // 调用完成后直接刷新页面
+          router.push('/login')
+        })
+        .catch(() => {})
     }
 
     // 跳转到视频页面
@@ -121,7 +134,6 @@ export default {
       const data = await getuserinfo(uid)
       user.value = data.data.userinfo[0]
       // 获取此用户的近期观看列表
-      console.log(JSON.parse(user.value.videolist) != null)
       if (JSON.parse(user.value.videolist) != null) {
         const oldlist = await proxy.$api.postdata.postUserVideoList(JSON.parse(user.value.videolist))
         videoList.value = oldlist.data.data
@@ -274,5 +286,18 @@ input {
   color: rgb(255, 255, 255);
   font-size: 15px;
   cursor: pointer;
+}
+</style>
+<style>
+.el-message-box {
+  background-color: #323232 !important;
+  border: 1px solid #323232;
+}
+.el-message-box__title {
+  color: #fff;
+}
+
+.el-message-box__content {
+  color: rgb(184, 184, 184);
 }
 </style>

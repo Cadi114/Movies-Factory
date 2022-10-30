@@ -14,28 +14,36 @@
         <div class="user-com-text-rigth">
           <div class="text">
             <div class="text-content">
-              <p class="p-username">{{ item.username }}</p>
+              <p class="p-username" @click="goUserInfo(item.Id)">
+                <span>{{ item.username }}</span>
+              </p>
               <p>{{ item.content }}</p>
-              <h5>{{ item.date }}</h5>
-              <h5 class="reply" @click="replyshow(index, item.username, item.uid, item.cid)">回复</h5>
-              <svg class="icon" aria-hidden="true" @click="Praise(item)" v-if="PraiseShow(item)">
-                <use xlink:href="#icon-dianzan"></use>
-              </svg>
-              <svg class="icon" aria-hidden="true" @click="cancelPraise(item)" v-else>
-                <use xlink:href="#icon-dianzan_kuai"></use>
-              </svg>
-              <h5 :class="PraiseShow(item) ? 'praise-quantity' : 'praise-quantity Highlight'" v-if="item.praiseuserslist && item.praiseuserslist.length > 0">{{ item.praiseuserslist.length }}</h5>
-              <h5 class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</h5>
+              <div class="text-content-bottom">
+                <div class="text-content-bottom-left">
+                  <span>{{ item.date }}</span>
+                  <span class="reply" @click="replyshow(index, item.username, item.uid, item.cid)">回复</span>
+                  <svg class="icon" aria-hidden="true" @click="Praise(item)" v-if="PraiseShow(item)">
+                    <use xlink:href="#icon-dianzan"></use>
+                  </svg>
+                  <svg class="icon" aria-hidden="true" @click="cancelPraise(item)" v-else>
+                    <use xlink:href="#icon-dianzan_kuai"></use>
+                  </svg>
+                  <span :class="PraiseShow(item) ? 'praise-quantity' : 'praise-quantity Highlight'" v-if="item.praiseuserslist && item.praiseuserslist.length > 0">{{ item.praiseuserslist.length }}</span>
+                </div>
+                <div class="text-content-bottom-right">
+                  <span class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</span>
+                </div>
+              </div>
             </div>
             <!-- 回复列表 -->
             <div class="text-user-reply">
               <div class="text-reply" v-for="(item2, index2) in item.userreply" :key="index2">
-                <div class="userimg-reply">
+                <div class="userimg-reply" @click="goUserInfo(item2.Id)">
                   <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + item2.user_pic" alt="" v-if="item2.user_pic" />
                   <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" v-else />
                 </div>
                 <div class="user-content-reply">
-                  <span>{{ item2.username }}</span> 回复 <span class="objname">@{{ item2.objectname }}</span> : <span>{{ item2.content }}</span>
+                  <span class="span-username" @click="goUserInfo(item2.Id)">{{ item2.username }}</span> 回复 <span class="objname" @click="goUserInfo(item2.objectuid)">@{{ item2.objectname }}</span> : <span>{{ item2.content }}</span>
                   <div class="text-reply-bottom">
                     <div class="bottom-left">
                       <span>{{ item2.date }}</span>
@@ -48,10 +56,24 @@
                 </div>
               </div>
             </div>
-          </div>
-          <!-- 回复框 -->
-          <div :class="active == index ? 'show' : 'reply-text'">
-            <!-- <div class="comment-publish">
+            <!-- 回复框 -->
+            <!-- <div :class="active == index ? 'show' : 'reply-text'">
+              <div class="comment-publish">
+              <div class="user-img">
+                <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
+                <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
+              </div>
+              <div class="content">
+                <el-input v-model="replyTextarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetName + '：'" />
+              </div>
+              <div class="btn">
+                <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
+              </div>
+            </div>
+              <Commentbox :vid="id" :CommentType="0" :targetinfo="targetinfo" @CommentReplyAdd="CommentReplyAdd"></Commentbox>
+            </div> -->
+            <div v-if="active == index ? true : false">
+              <!-- <div class="comment-publish">
               <div class="user-img">
                 <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
                 <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
@@ -63,7 +85,8 @@
                 <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
               </div>
             </div> -->
-            <Commentbox :vid="id" :CommentType="0" :targetinfo="targetinfo" @CommentReplyAdd="CommentReplyAdd"></Commentbox>
+              <Commentbox :vid="id" :CommentType="0" :targetinfo="targetinfo" @CommentReplyAdd="CommentReplyAdd"> </Commentbox>
+            </div>
           </div>
         </div>
       </div>
@@ -82,13 +105,15 @@
 import { onMounted, computed, ref, getCurrentInstance, toRaw, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Vuex from 'vuex'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import moment from 'moment'
 import Commentbox from '../commentbox/Commentbox.vue'
 
 export default {
   name: 'UserComments',
-  components: { Commentbox },
+  components: {
+    Commentbox
+  },
 
   setup() {
     let { proxy } = getCurrentInstance()
@@ -164,37 +189,53 @@ export default {
 
     // 删除评论
     async function deletecom(cid) {
-      comments.value.forEach((item, index) => {
-        if (item.cid === cid) {
-          comments.value.splice(index, 1)
-        }
+      ElMessageBox.confirm('是否删除该评论？', '删除评论', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-
-      await proxy.$api.postdata.postDeleteComment({ cid }).then(res => {
-        if (res.data.code === 200) {
-          ElMessage({
-            message: '此评论已删除',
-            type: 'success'
+        .then(async () => {
+          comments.value.forEach((item, index) => {
+            if (item.cid === cid) {
+              comments.value.splice(index, 1)
+            }
           })
-        }
-      })
+
+          await proxy.$api.postdata.postDeleteComment({ cid }).then(res => {
+            if (res.data.code === 200) {
+              ElMessage({
+                message: '此评论已删除',
+                type: 'success'
+              })
+            }
+          })
+        })
+        .catch(() => {})
     }
 
     //删除回复内容
     async function deleteReply(i, rid) {
-      comments.value[i].userreply.forEach((item, index) => {
-        if (item.rid === rid) {
-          comments.value[i].userreply.splice(index, 1)
-        }
+      ElMessageBox.confirm('是否删除该条回复？', '删除回复内容', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-      await proxy.$api.postdata.postDeleteReply({ rid }).then(res => {
-        if (res.data.code === 200) {
-          ElMessage({
-            message: '此回复已删除',
-            type: 'success'
+        .then(async () => {
+          comments.value[i].userreply.forEach((item, index) => {
+            if (item.rid === rid) {
+              comments.value[i].userreply.splice(index, 1)
+            }
           })
-        }
-      })
+          await proxy.$api.postdata.postDeleteReply({ rid }).then(res => {
+            if (res.data.code === 200) {
+              ElMessage({
+                message: '此回复已删除',
+                type: 'success'
+              })
+            }
+          })
+        })
+        .catch(() => {})
     }
 
     // 回复按钮
@@ -458,40 +499,54 @@ img {
 }
 
 .text-content {
-  position: relative;
+  /* position: relative; */
   width: 680px;
   /* background-color: aqua; */
-  min-height: 80px;
-  padding-bottom: 35px;
-  color: #fff;
+  /* min-height: 100px;
+  padding-bottom: 30px; */
   /* border-bottom: 3px solid rgb(102, 102, 102); */
+  color: #fff;
 }
+
 .text p {
-  position: relative;
+  /* position: relative; */
   word-break: break-word;
 }
-.text h5 {
-  position: absolute;
-  bottom: 5px;
+
+.text-content-bottom {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.text-content-bottom-left span {
+  margin-right: 5px;
+}
+
+.text-content-bottom-right {
+  padding-top: 3px;
+  position: relative;
 }
 
 .reply {
-  position: absolute;
-  left: 120px;
   color: #a8a8a8;
   cursor: pointer;
 }
 
 .delete {
-  position: absolute;
-  bottom: 5px;
-  right: 0;
   color: #a8a8a8;
   cursor: pointer;
 }
 
 .p-username {
   margin-bottom: 10px;
+}
+
+.p-username span:hover {
+  color: #1296db;
+  cursor: pointer;
 }
 
 .nocomments {
@@ -505,6 +560,10 @@ img {
   margin: 0 auto;
   margin-top: 50px;
   display: flex;
+}
+
+.text-user-reply {
+  width: 680px;
 }
 
 .reply-text {
@@ -525,6 +584,7 @@ img {
   margin-right: 20px;
   margin-top: 5px;
 }
+
 .user-img img {
   width: 100%;
   height: 100%;
@@ -543,6 +603,7 @@ img {
   display: flex;
   min-height: 50px;
 }
+
 .userimg-reply {
   width: 30px;
   height: 30px;
@@ -550,6 +611,7 @@ img {
   overflow: hidden;
   border: 2px solid #fff;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 .user-content-reply {
@@ -558,9 +620,21 @@ img {
   width: 640px;
 }
 
+.span-username {
+  cursor: pointer;
+}
+
+.span-username:hover {
+  color: #1296db;
+}
+
 .objname {
   color: rgb(114, 180, 238);
   cursor: pointer;
+}
+
+.objname:hover {
+  color: rgb(0, 88, 183);
 }
 
 .user-content-reply p {
@@ -568,11 +642,12 @@ img {
   font-size: 12px;
   font-weight: bold;
 }
+
 .text-reply-bottom {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -590,19 +665,37 @@ img {
 .icon {
   width: 20px;
   height: 20px;
-  position: absolute;
-  left: 155px;
-  bottom: 5px;
+  position: relative;
+  top: 3px;
+  margin-right: 5px;
+  /* position: absolute;
+  left: 165px;
+  bottom: 5px; */
   cursor: pointer;
 }
+
 .praise-quantity {
-  position: absolute;
-  left: 180px;
+  /* position: absolute;
+  left: 188px; */
   color: #a8a8a8;
   cursor: pointer;
 }
 
 .Highlight {
   color: #1296db;
+}
+</style>
+
+<style>
+.el-message-box {
+  background-color: #323232 !important;
+  border: 1px solid #323232;
+}
+.el-message-box__title {
+  color: #fff;
+}
+
+.el-message-box__content {
+  color: rgb(184, 184, 184);
 }
 </style>

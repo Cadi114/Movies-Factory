@@ -17,7 +17,7 @@
       <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
     </div>
   </div>
-  <div class="comment-publish" v-else>
+  <div class="comment-publish-reply" v-else>
     <div class="user-img">
       <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
       <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
@@ -55,7 +55,7 @@ export default {
     let inputvalue = ref(textarea)
     const vid = props.vid
     const CommentType = props.CommentType
-    let targetinfo = ref({})
+    let targetinfo = ref(props.targetinfo)
     let replyTextarea = ref('')
 
     // 发布评论
@@ -191,5 +191,12 @@ export default {
 
 .icon {
   width: 20px;
+}
+
+.comment-publish-reply {
+  width: 700px;
+  /* margin-top: 50px; */
+  display: flex;
+  margin: 20px auto;
 }
 </style>
