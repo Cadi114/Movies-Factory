@@ -1,44 +1,75 @@
 <template>
-  <div class="comment-publish" v-if="CommentType">
+  <div class="comment-publish" v-if="CommentType === 1">
     <div class="user-img">
       <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
       <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
     </div>
     <div class="content">
-      <el-input v-model="inputvalue" @input="changeCommentInput" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
-      <el-button class="emoji-btn" type="primary" style="height: 25px">
+      <el-input v-model="inputvalue" @input="changeCommentInput" ref="CommentInput" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+      <el-button class="emoji-btn" type="primary" style="height: 25px" @click.stop="emojiBtn(1)">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-biaoqing"></use>
         </svg>
         表情
       </el-button>
+      <div class="emoji-box" v-show="emojiboxShow">
+        <ul class="emoji-list">
+          <li class="emoji-item" v-for="(item,index) in emojilist" :key="index" @click="inputEmojiChenge(index)">{{item}}</li>
+        </ul>
+      </div>
     </div>
     <div class="btn">
       <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
     </div>
   </div>
-  <div class="comment-publish-reply" v-else>
+  <!-- 回复框 -->
+  <div class="comment-publish-reply" v-else-if="CommentType === 0">
     <div class="user-img">
       <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
       <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
     </div>
     <div class="content">
-      <el-input v-model="replyTextarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetinfo.targetName + '：'" />
-      <el-button class="emoji-btn" type="primary" style="height: 25px">
+      <el-input v-model="replyTextarea" ref="replyCommentInput" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetinfo.targetName + '：'" />
+      <el-button class="emoji-btn" type="primary" style="height: 25px" @click.stop="emojiBtn(3)">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-biaoqing"></use>
         </svg>
         表情
       </el-button>
+      <div class="emoji-box" v-show="emojiboxReplyShow">
+        <ul class="emoji-list">
+          <li class="emoji-item" v-for="(item,index) in emojilist" :key="index" @click="replyInputEmojiChenge(index)">{{item}}</li>
+        </ul>
+      </div>
     </div>
     <div class="btn">
       <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
     </div>
   </div>
+  <!-- 底部框 -->
+  <div class="comment-publish" v-else>
+    <div class="content">
+      <el-input v-model="inputvalue" @input="changeCommentInput" ref="CommentInput" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
+      <el-button class="emoji-btn" type="primary" style="height: 25px" @click.stop="emojiBtn(2)">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-biaoqing"></use>
+        </svg>
+        表情
+      </el-button>
+      <div class="emoji-box-bottom" v-show="emojiboxBottomShow">
+        <ul class="emoji-list">
+          <li class="emoji-item" v-for="(item,index) in emojilist" :key="index" @click="inputEmojiChenge(index)">{{item}}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="btn">
+      <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
+    </div>
+  </div>
 </template>
 
 <script>
-import { computed, ref, getCurrentInstance, watch } from 'vue'
+import { computed, ref, getCurrentInstance, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import Vuex from 'vuex'
 import moment from 'moment'
 import { ElMessage } from 'element-plus'
@@ -57,6 +88,104 @@ export default {
     const CommentType = props.CommentType
     let targetinfo = ref(props.targetinfo)
     let replyTextarea = ref('')
+    let emojiboxShow = computed(() => store.state.emojiboxShow)
+    let emojiboxBottomShow = computed(() => store.state.emojiboxBottomShow)
+    let emojiboxReplyShow = computed(() => store.state.emojiboxReplyShow)
+    const CommentInput = ref(null)
+    const replyCommentInput = ref(null)
+    const emojilist = ref([
+      '😀',
+      '😁',
+      '😂',
+      '🤣',
+      '😃',
+      '😄',
+      '😅',
+      '😆',
+      '😉',
+      '😊',
+      '😋',
+      '😎',
+      '😍',
+      '😘',
+      '🥰',
+      '😗',
+      '😙',
+      '😚',
+      '🙂',
+      '🤗',
+      '🤩',
+      '🤔',
+      '🤨',
+      '😐',
+      '😑',
+      '😶',
+      '🙄',
+      '😏',
+      '😣',
+      '😥',
+      '😮',
+      '🤐',
+      '😯',
+      '😪',
+      '😫',
+      '🥱',
+      '😴',
+      '😌',
+      '😛',
+      '😜',
+      '😝',
+      '🤤',
+      '😒',
+      '😓',
+      '😔',
+      '😕',
+      '🙃',
+      '🤑',
+      '😲',
+      '🙁',
+      '😖',
+      '😞',
+      '😟',
+      '😤',
+      '😢',
+      '😭',
+      '😦',
+      '😧',
+      '😨',
+      '😩',
+      '🤯',
+      '😬',
+      '😰',
+      '😱',
+      '🥵',
+      '🥶',
+      '😳',
+      '🤪',
+      '😵',
+      '🥴',
+      '😠',
+      '😡',
+      '🤬',
+      '😷',
+      '🤒',
+      '🤕',
+      '🤢',
+      '🤮',
+      '🤧',
+      '😇',
+      '🥳',
+      '🥺',
+      '🤠',
+      '🤡',
+      '🤥',
+      '🤫',
+      '🤭',
+      '🧐',
+      '🤓',
+      '😈',
+      '👿'
+    ])
 
     // 发布评论
     async function publish() {
@@ -130,6 +259,37 @@ export default {
       replyTextarea.value = ''
     }
 
+    //表情按钮
+    function emojiBtn(val) {
+      store.commit('emojiBtn', val)
+    }
+
+    function emojiboxHide() {
+      store.commit('emojiBtn', 0)
+    }
+
+    // 点击表情图标事件
+    function inputEmojiChenge(index) {
+      store.commit('changeInput', inputvalue.value + emojilist.value[index])
+      CommentInput.value.focus()
+    }
+
+    // 点击回复框的表情图标事件
+    function replyInputEmojiChenge(index) {
+      replyTextarea.value = replyTextarea.value + emojilist.value[index]
+      replyCommentInput.value.focus()
+    }
+
+    onMounted(() => {
+      // 当用户点击表情框之外的内容时，表情框隐藏
+      window.addEventListener('click', emojiboxHide)
+    })
+
+    // 卸载事件
+    onUnmounted(() => {
+      window.removeEventListener('click', emojiboxHide)
+    })
+
     // 监听props.targetinfo的值
     watch(
       () => props.targetinfo,
@@ -147,9 +307,18 @@ export default {
       inputvalue,
       replyTextarea,
       targetinfo,
+      emojiboxShow,
+      emojiboxBottomShow,
+      emojiboxReplyShow,
+      emojilist,
+      CommentInput,
+      replyCommentInput,
       publish,
       changeCommentInput,
-      reply
+      reply,
+      emojiBtn,
+      inputEmojiChenge,
+      replyInputEmojiChenge
     }
   }
 }
@@ -180,6 +349,7 @@ export default {
 }
 
 .content {
+  position: relative;
   width: 500px;
   height: 100px;
   margin-right: 20px;
@@ -198,5 +368,64 @@ export default {
   /* margin-top: 50px; */
   display: flex;
   margin: 20px auto;
+}
+
+.emoji-box {
+  overflow: auto;
+  position: absolute;
+  left: 0;
+  bottom: -270px;
+  width: 400px;
+  height: 250px;
+  background-color: #3d3d3d;
+  border: 1px solid rgb(135, 135, 135);
+  box-shadow: 0px 5px 15px #232323;
+  padding: 5px;
+  z-index: 999;
+}
+
+/* .emoji-box::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 0px;
+  height: 0px;
+  display: inline-block;
+  border-bottom: 8px solid rgb(135, 135, 135);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+} */
+
+.emoji-box-bottom {
+  position: absolute;
+  overflow: auto;
+  left: 0;
+  top: -275px;
+  width: 400px;
+  height: 250px;
+  background-color: #3d3d3d;
+  border: 1px solid rgb(135, 135, 135);
+  box-shadow: 0px 5px 15px #232323;
+  padding: 5px;
+  z-index: 999;
+}
+
+.emoji-list {
+  width: 100%;
+}
+
+.emoji-item {
+  float: left;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  line-height: 40px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.emoji-item:hover {
+  background-color: rgb(100, 100, 100);
 }
 </style>

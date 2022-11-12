@@ -71,7 +71,7 @@
         <div class="btn">
           <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
         </div> -->
-        <Commentbox :vid="id" :CommentType="1"></Commentbox>
+        <Commentbox :vid="id" :CommentType="2"></Commentbox>
       </div>
     </transition>
   </div>

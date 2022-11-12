@@ -14,8 +14,8 @@
         <div class="user-com-text-rigth">
           <div class="text">
             <div class="text-content">
-              <p class="p-username" @click="goUserInfo(item.Id)">
-                <span>{{ item.username }}</span>
+              <p class="p-username">
+                <span @click="goUserInfo(item.Id)">{{ item.username }}</span>
               </p>
               <p>{{ item.content }}</p>
               <div class="text-content-bottom">
@@ -56,22 +56,6 @@
                 </div>
               </div>
             </div>
-            <!-- 回复框 -->
-            <!-- <div :class="active == index ? 'show' : 'reply-text'">
-              <div class="comment-publish">
-              <div class="user-img">
-                <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
-                <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
-              </div>
-              <div class="content">
-                <el-input v-model="replyTextarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetName + '：'" />
-              </div>
-              <div class="btn">
-                <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
-              </div>
-            </div>
-              <Commentbox :vid="id" :CommentType="0" :targetinfo="targetinfo" @CommentReplyAdd="CommentReplyAdd"></Commentbox>
-            </div> -->
             <div v-if="active == index ? true : false">
               <!-- <div class="comment-publish">
               <div class="user-img">
@@ -142,7 +126,7 @@ export default {
     // 触底获取更多评论函数
     async function getMoreComment() {
       // 判断是否触底
-      if (document.documentElement.scrollTop + document.documentElement.clientHeight > document.documentElement.offsetHeight) {
+      if (document.documentElement.scrollTop + document.documentElement.clientHeight > document.documentElement.offsetHeight - 10) {
         if (flag) {
           return
         }
@@ -254,56 +238,6 @@ export default {
       }
     }
 
-    //发起回复
-    async function reply() {
-      // 判断回复内容不许为空
-      if (!replyTextarea.value.trim()) {
-        // 清空回复框
-        replyTextarea.value = ''
-        return ElMessage.error('请输入回复内容！')
-      }
-
-      // 回复的数据
-      let replyData = {
-        cid: targetCid.value,
-        uid: user.value.Id,
-        content: replyTextarea.value,
-        date: moment().format('YYYY-MM-DD HH:mm'),
-        objectname: targetName.value,
-        objectuid: targetUid.value
-      }
-
-      // 发起请求
-      await proxy.$api.postdata.postAddreply(replyData).then(res => {
-        if (res.data.code === 200) {
-          ElMessage({
-            message: '回复成功',
-            type: 'success'
-          })
-        } else {
-          return
-        }
-      })
-
-      // 为当前回复列表添加新数据
-      comments.value[active.value].userreply.push({
-        cid: targetCid.value,
-        uid: user.value.Id,
-        content: replyTextarea.value,
-        date: moment().format('YYYY-MM-DD HH:mm'),
-        objectname: targetName.value,
-        objectuid: targetUid.value,
-        uid: user.value.Id,
-        user_pic: user.value.user_pic,
-        username: user.value.username
-      })
-      // 清空回复框
-      replyTextarea.value = ''
-
-      // 让回复框隐藏
-      active.value = -1
-    }
-
     //为当前回复列表添加新数据
     function CommentReplyAdd(val) {
       comments.value[active.value].userreply.push({
@@ -391,17 +325,6 @@ export default {
       active.value = -1
     }
 
-    // watch(
-    //   // () => comments.value,
-    //   // async () => {
-    //   //   let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
-    //   //   comments.value = data.data.data || []
-    //   // },
-    //   {
-    //     deep: false //是否采用深度监听
-    //   }
-    // )
-
     return {
       comments,
       user,
@@ -415,7 +338,6 @@ export default {
       Commentsorting,
       deletecom,
       replyshow,
-      reply,
       deleteReply,
       goUserInfo,
       Praise,
@@ -499,17 +421,11 @@ img {
 }
 
 .text-content {
-  /* position: relative; */
   width: 680px;
-  /* background-color: aqua; */
-  /* min-height: 100px;
-  padding-bottom: 30px; */
-  /* border-bottom: 3px solid rgb(102, 102, 102); */
   color: #fff;
 }
 
 .text p {
-  /* position: relative; */
   word-break: break-word;
 }
 
@@ -555,13 +471,6 @@ img {
   text-align: center;
 }
 
-.comment-publish {
-  width: 700px;
-  margin: 0 auto;
-  margin-top: 50px;
-  display: flex;
-}
-
 .text-user-reply {
   width: 680px;
 }
@@ -572,28 +481,6 @@ img {
 
 .show {
   display: block;
-}
-
-.user-img {
-  width: 60px;
-  height: 60px;
-  border-radius: 100px;
-  border: 3px solid #fff;
-  margin-bottom: 30px;
-  overflow: hidden;
-  margin-right: 20px;
-  margin-top: 5px;
-}
-
-.user-img img {
-  width: 100%;
-  height: 100%;
-}
-
-.content {
-  width: 500px;
-  height: 100px;
-  margin-right: 20px;
 }
 
 /* 回复栏 */
@@ -668,15 +555,10 @@ img {
   position: relative;
   top: 3px;
   margin-right: 5px;
-  /* position: absolute;
-  left: 165px;
-  bottom: 5px; */
   cursor: pointer;
 }
 
 .praise-quantity {
-  /* position: absolute;
-  left: 188px; */
   color: #a8a8a8;
   cursor: pointer;
 }

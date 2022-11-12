@@ -33,17 +33,17 @@
         <a href="javascript:;">类型</a>
         <transition name="expandTransition">
           <div class="expand" v-show="expandshow">
-            <div><a href="javascript:;" @click="goscreen('动画')">动画</a></div>
-            <div><a href="javascript:;" @click="goscreen('动作')">动作</a></div>
-            <div><a href="javascript:;" @click="goscreen('科幻')">科幻</a></div>
-            <div><a href="javascript:;" @click="goscreen('奇幻')">奇幻</a></div>
-            <div><a href="javascript:;" @click="goscreen('恐怖')">恐怖</a></div>
-            <div><a href="javascript:;" @click="goscreen('犯罪')">犯罪</a></div>
-            <div><a href="javascript:;" @click="goscreen('纪录片')">纪录片</a></div>
-            <div><a href="javascript:;" @click="goscreen('爱情')">爱情</a></div>
-            <div><a href="javascript:;" @click="goscreen('喜剧')">喜剧</a></div>
-            <div><a href="javascript:;" @click="goscreen('悬疑')">悬疑</a></div>
-            <div><a href="javascript:;" @click="goscreen('冒险')">冒险</a></div>
+            <div @click="goscreen('动画')"><a href="javascript:;">动画</a></div>
+            <div @click="goscreen('动作')"><a href="javascript:;">动作</a></div>
+            <div @click="goscreen('科幻')"><a href="javascript:;">科幻</a></div>
+            <div @click="goscreen('奇幻')"><a href="javascript:;">奇幻</a></div>
+            <div @click="goscreen('恐怖')"><a href="javascript:;">恐怖</a></div>
+            <div @click="goscreen('犯罪')"><a href="javascript:;">犯罪</a></div>
+            <div @click="goscreen('纪录片')"><a href="javascript:;">纪录片</a></div>
+            <div @click="goscreen('爱情')"><a href="javascript:;">爱情</a></div>
+            <div @click="goscreen('喜剧')"><a href="javascript:;">喜剧</a></div>
+            <div @click="goscreen('悬疑')"><a href="javascript:;">悬疑</a></div>
+            <div @click="goscreen('冒险')"><a href="javascript:;">冒险</a></div>
           </div>
         </transition>
       </li>
