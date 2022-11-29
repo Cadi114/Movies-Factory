@@ -99,4 +99,22 @@ function postCancelPraise(data = {}) {
   })
 }
 
-export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList, postAddPraise, postCancelPraise }
+// 点赞回复评论
+function postAddReplyPraise(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/addreplypraise',
+    data
+  })
+}
+
+// 取消点赞回复评论
+function postCancelReplyPraise(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/cancelreplypraise',
+    data
+  })
+}
+
+export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList, postAddPraise, postCancelPraise, postAddReplyPraise, postCancelReplyPraise }

@@ -71,4 +71,13 @@ function getUserInfo(id, data = {}) {
   })
 }
 
-export default { getVideoInfo, getVideoInfoID, getAllscreen, getComments, getClass, getUserInfo, getVideoInfoPage }
+// 获取搜索相关内容
+function getSearchRequest(val, data = {}) {
+  return request({
+    method: 'GET',
+    url: '/api/searchrequest?val=' + val,
+    data
+  })
+}
+
+export default { getVideoInfo, getVideoInfoID, getAllscreen, getComments, getClass, getUserInfo, getVideoInfoPage, getSearchRequest }

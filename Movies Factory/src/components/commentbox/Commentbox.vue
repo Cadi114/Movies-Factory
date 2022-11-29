@@ -69,11 +69,11 @@
 </template>
 
 <script>
-import { computed, ref, getCurrentInstance, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { computed, ref, getCurrentInstance, watch, onMounted, onUnmounted } from 'vue'
 import Vuex from 'vuex'
 import moment from 'moment'
 import { ElMessage } from 'element-plus'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 export default {
   props: ['vid', 'CommentType', 'targetinfo', 'CommentReplyAdd'],

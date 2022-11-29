@@ -22,13 +22,13 @@
                 <div class="text-content-bottom-left">
                   <span>{{ item.date }}</span>
                   <span class="reply" @click="replyshow(index, item.username, item.uid, item.cid)">回复</span>
-                  <svg class="icon" aria-hidden="true" @click="Praise(item)" v-if="PraiseShow(item)">
+                  <svg class="icon" aria-hidden="true" @click="Praise(item,1)" v-if="PraiseShow(item,1)">
                     <use xlink:href="#icon-dianzan"></use>
                   </svg>
-                  <svg class="icon" aria-hidden="true" @click="cancelPraise(item)" v-else>
+                  <svg class="icon" aria-hidden="true" @click="cancelPraise(item,1)" v-else>
                     <use xlink:href="#icon-dianzan_kuai"></use>
                   </svg>
-                  <span :class="PraiseShow(item) ? 'praise-quantity' : 'praise-quantity Highlight'" v-if="item.praiseuserslist && item.praiseuserslist.length > 0">{{ item.praiseuserslist.length }}</span>
+                  <span :class="PraiseShow(item,1) ? 'praise-quantity' : 'praise-quantity Highlight'" v-if="item.praiseuserslist && item.praiseuserslist.length > 0">{{ item.praiseuserslist.length }}</span>
                 </div>
                 <div class="text-content-bottom-right">
                   <span class="delete" v-if="user.Id == item.uid" @click="deletecom(item.cid)">删除</span>
@@ -48,6 +48,13 @@
                     <div class="bottom-left">
                       <span>{{ item2.date }}</span>
                       <span @click="replyshow(index, item2.username, item2.uid, item.cid)" class="bottom-reply">回复</span>
+                      <svg class="icon" aria-hidden="true" @click="Praise(item2,2)" v-if="PraiseShow(item2,2)">
+                        <use xlink:href="#icon-dianzan"></use>
+                      </svg>
+                      <svg class="icon" aria-hidden="true" @click="cancelPraise(item2,2)" v-else>
+                        <use xlink:href="#icon-dianzan_kuai"></use>
+                      </svg>
+                      <span :class="PraiseShow(item2,2) ? 'praise-quantity' : 'praise-quantity Highlight'" v-if="item2.replypraiseuserslist && item2.replypraiseuserslist.length > 0">{{item2.replypraiseuserslist.length}}</span>
                     </div>
                     <div class="bottom-right">
                       <span v-if="item2.uid == user.Id" @click="deleteReply(index, item2.rid)">删除</span>
@@ -57,18 +64,6 @@
               </div>
             </div>
             <div v-if="active == index ? true : false">
-              <!-- <div class="comment-publish">
-              <div class="user-img">
-                <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
-                <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
-              </div>
-              <div class="content">
-                <el-input v-model="replyTextarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" :placeholder="'回复 @' + targetName + '：'" />
-              </div>
-              <div class="btn">
-                <el-button type="primary" style="width: 75px; height: 75px" @click="reply">回复</el-button>
-              </div>
-            </div> -->
               <Commentbox :vid="id" :CommentType="0" :targetinfo="targetinfo" @CommentReplyAdd="CommentReplyAdd"> </Commentbox>
             </div>
           </div>
@@ -159,9 +154,9 @@ export default {
       // let data = await axios.get('http://127.0.0.1:8080/api/comment?id=' + id.value)
       let data = await proxy.$api.getdata.getComments(id, commentPage, Commentsorting.value)
       comments.value = data.data.data || []
+
       // 获取评论总数
       commentCount.value = data.data.count[0].NUM || 0
-
       // 监听滚动条
       window.addEventListener('scroll', getMoreComment)
     })
@@ -262,19 +257,32 @@ export default {
     }
 
     // 点赞
-    async function Praise(item) {
+    async function Praise(item, index) {
       if (user.value.Id) {
-        let res = await proxy.$api.postdata.postAddPraise({ cid: item.cid, uid: user.value.Id })
-        if (res.data.code === 200) {
-          // 判断是否有数组
-          if (item.praiseuserslist) {
-            item.praiseuserslist.push(user.value.Id)
-            console.log(item.praiseuserslist.length)
-          } else {
-            // 没有数组则创建一个新数组
-            item.praiseuserslist = new Array()
-            item.praiseuserslist.push(user.value.Id)
-            console.log(item.praiseuserslist)
+        if (index === 1) {
+          let res = await proxy.$api.postdata.postAddPraise({ cid: item.cid, uid: user.value.Id })
+          if (res.data.code === 200) {
+            // 判断是否有数组
+            if (item.praiseuserslist) {
+              item.praiseuserslist.push(user.value.Id)
+            } else {
+              // 没有数组则创建一个新数组
+              item.praiseuserslist = new Array()
+              item.praiseuserslist.push(user.value.Id)
+            }
+          }
+        } else {
+          // 点赞回复的评论
+          let res = await proxy.$api.postdata.postAddReplyPraise({ rid: item.rid, uid: user.value.Id })
+          if (res.data.code === 200) {
+            // 判断是否有数组
+            if (item.replypraiseuserslist) {
+              item.replypraiseuserslist.push(user.value.Id)
+            } else {
+              // 没有数组则创建一个新数组
+              item.replypraiseuserslist = new Array()
+              item.replypraiseuserslist.push(user.value.Id)
+            }
           }
         }
       } else {
@@ -283,24 +291,41 @@ export default {
     }
 
     // 是否已点赞
-    function PraiseShow(item) {
+    function PraiseShow(item, index) {
       if (user.value.Id) {
-        if (item.praiseuserslist) {
-          return !item.praiseuserslist.includes(user.value.Id)
+        if (index === 1) {
+          if (item.praiseuserslist) {
+            return !item.praiseuserslist.includes(user.value.Id)
+          } else {
+            return true
+          }
         } else {
-          return true
+          if (item.replypraiseuserslist) {
+            return !item.replypraiseuserslist.includes(user.value.Id)
+          } else {
+            return true
+          }
         }
       }
       return true
     }
 
     // 取消点赞
-    async function cancelPraise(item) {
+    async function cancelPraise(item, index) {
       if (user.value.Id) {
-        if (item.praiseuserslist) {
-          let res = await proxy.$api.postdata.postCancelPraise({ cid: item.cid, uid: user.value.Id })
-          if (res.data.code === 200) {
-            item.praiseuserslist.splice(item.praiseuserslist.indexOf(user.value.Id), 1)
+        if (index === 1) {
+          if (item.praiseuserslist) {
+            let res = await proxy.$api.postdata.postCancelPraise({ cid: item.cid, uid: user.value.Id })
+            if (res.data.code === 200) {
+              item.praiseuserslist.splice(item.praiseuserslist.indexOf(user.value.Id), 1)
+            }
+          }
+        } else {
+          if (item.replypraiseuserslist) {
+            let res = await proxy.$api.postdata.postCancelReplyPraise({ rid: item.rid, uid: user.value.Id })
+            if (res.data.code === 200) {
+              item.replypraiseuserslist.splice(item.replypraiseuserslist.indexOf(user.value.Id), 1)
+            }
           }
         }
       }
@@ -538,13 +563,16 @@ img {
   font-weight: bold;
 }
 
+.bottom-left span {
+  margin-right: 5px;
+}
+
 .text-reply-bottom .bottom-right span {
   color: #a8a8a8;
   cursor: pointer;
 }
 
 .text-reply-bottom .bottom-reply {
-  margin-left: 5px;
   color: #a8a8a8;
   cursor: pointer;
 }

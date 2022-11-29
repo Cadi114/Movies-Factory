@@ -22,14 +22,11 @@
           </svg>
         </a>
         <transition name="searchShowTransition">
-          <div class="search-input" @click.stop="true" v-show="searchshow">
-            <input type="text" placeholder="请输入搜索内容" v-model.trim="inputval" ref="inputret" />
-            <button @click.stop="goscreen(inputval)">搜索</button>
-          </div>
+          <SearchBox @mousedown.stop="true" v-show="searchshow" @setSearchShow="setSearchShow"></SearchBox>
         </transition>
       </li>
       <li><a href="#">其它</a></li>
-      <li class="type" @mouseenter="isexpandShow" @mouseleave="expandshow = 0">
+      <li class="type" @mouseenter="expandshow=1" @mouseleave="expandshow = 0">
         <a href="javascript:;">类型</a>
         <transition name="expandTransition">
           <div class="expand" v-show="expandshow">
@@ -56,31 +53,24 @@
 </template>
 
 <script>
-import { reactive, ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Vuex from 'vuex'
-import { ElMessage } from 'element-plus'
+import SearchBox from '../searchbox/SearchBox.vue'
 
 export default {
   name: 'NavHeader',
+
+  components: { SearchBox },
 
   setup() {
     const router = useRouter()
     // 控制搜索框显示与隐藏
     let searchshow = ref(0)
     let expandshow = ref(0)
+
     const store = Vuex.useStore()
     const user = computed(() => store.state.userInfo)
-
-    // 搜索内容
-    let inputval = ref('')
-
-    function goscreen(val) {
-      if (val == '') {
-        return ElMessage.error('请输入要搜索的内容')
-      }
-      router.push('/screen?val=' + val)
-    }
 
     function gouserinfo() {
       router.push('/userinfo/' + user.value.Id)
@@ -90,15 +80,18 @@ export default {
       router.push('/class?val=' + val)
     }
 
-    // 下拉菜单
-    function isexpandShow() {
-      expandshow.value = 1
+    function goscreen(val) {
+      router.push('/screen?val=' + val)
+    }
+
+    // 当搜索框组件开始搜索跳转时隐藏搜索框
+    function setSearchShow() {
       searchshow.value = 0
     }
 
     onMounted(() => {
       // 当用户点击搜索框之外的内容时，搜索框隐藏
-      window.addEventListener('click', () => {
+      window.addEventListener('mousedown', () => {
         searchshow.value = 0
       })
     })
@@ -107,11 +100,10 @@ export default {
       searchshow,
       expandshow,
       user,
-      inputval,
-      goscreen,
       gouserinfo,
       goclass,
-      isexpandShow
+      goscreen,
+      setSearchShow
     }
   }
 }
@@ -154,25 +146,24 @@ li {
 .yemei {
   position: relative;
   z-index: 999;
-  background-size: 100% 100%;
   background-color: #323232;
   /* background-color: #494949; */
   box-shadow: 0px 5px 20px #000000;
   height: 70px;
 }
 
-.yemei ul {
+.yemei > ul {
   margin-right: 50px;
 }
 
-.yemei ul li {
+.yemei > ul > li {
   text-align: center;
   float: right;
   height: 70px;
   width: 80px;
 }
 
-.yemei ul > li > a {
+.yemei > ul > li > a {
   display: block;
   font-family: 'icomoon';
   font-size: 24px;
@@ -180,7 +171,7 @@ li {
   color: #a8a8a8;
 }
 
-.yemei ul li:nth-child(1) a {
+.yemei > ul > li:nth-child(1) a {
   line-height: 72px;
   font-size: 22px;
 }
@@ -221,41 +212,6 @@ a {
 
 .yemei .search {
   position: relative;
-}
-
-.yemei .search-input {
-  position: absolute;
-  top: 70px;
-  right: 25px;
-  width: 300px;
-  height: 100px;
-  background-color: #323232;
-  border: 2px solid rgb(0, 0, 0);
-  box-shadow: 0px 4px 8px #000000;
-}
-
-.yemei .search-input input {
-  width: 100%;
-  height: 30px;
-  border: 0;
-  margin-top: 15px;
-  font-size: 16px;
-  outline: none;
-  text-indent: 10px;
-}
-
-.yemei .search-input button {
-  width: 100%;
-  height: 30px;
-  border: 0;
-  background-color: #4d4d4d;
-  margin-top: 10px;
-  color: #a8a8a8;
-  font-size: 18px;
-}
-
-.yemei .search-input button:hover {
-  cursor: pointer;
 }
 
 .yemei .user {
@@ -314,7 +270,7 @@ a {
   z-index: -1;
 }
 
-.yemei .expand div {
+.yemei .expand > div {
   /* display: none; */
   width: 100px;
   height: 40px;
@@ -323,7 +279,7 @@ a {
   cursor: pointer;
 }
 
-.yemei .expand div a {
+.yemei .expand > div > a {
   font-size: 20px;
   color: #000000;
   line-height: 40px;
@@ -397,7 +353,7 @@ a {
   position: relative;
 }
 
-.icon {
+.icon-a .icon {
   width: 35px;
   height: 35px;
   position: absolute;

@@ -6,6 +6,7 @@ import { getAllUserinfo } from '../controller/getUserinfo.js'
 import { getAllcomment } from '../controller/comment.js'
 import { getAllclass } from '../controller/class-ctrl.js'
 import { getVideoPage } from '../controller/getvideopage.js'
+import { searchRequest } from '../controller/searchRequest.js'
 
 const router = new express.Router()
 
@@ -31,5 +32,7 @@ router.get('/comment', getAllcomment)
 router.get('/class', getAllclass)
 //获取对应页数的视频内容
 router.get('/getvideopage', getVideoPage)
+// 获取搜索相关内容
+router.get('/searchrequest', searchRequest)
 
 export default router

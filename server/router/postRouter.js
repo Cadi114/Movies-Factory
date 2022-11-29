@@ -8,6 +8,8 @@ import { postAddVideoList } from '../controller/addVideoList.js'
 import { getUserVidoList } from '../controller/getUserVidoList.js'
 import { postAddPraise } from '../controller/addpraise.js'
 import { postCancelPraise } from '../controller/cancelPraise.js'
+import { postAddReplyPraise } from '../controller/addreplypraise.js'
+import { postCancelReplyPraise } from '../controller/cancelReplyPraise.js'
 
 const router = new express.Router()
 
@@ -37,5 +39,9 @@ router.post('/uservideolist', getUserVidoList)
 router.post('/addpraise', postAddPraise)
 // 取消点赞
 router.post('/cancelpraise', postCancelPraise)
+// 添加回复评论的点赞数量
+router.post('/addreplypraise', postAddReplyPraise)
+// 取消回复评论的点赞
+router.post('/cancelreplypraise', postCancelReplyPraise)
 
 export default router
