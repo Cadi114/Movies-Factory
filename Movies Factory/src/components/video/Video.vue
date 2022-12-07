@@ -27,6 +27,10 @@
               {{ videoinfo.vexplain }}
             </p>
           </ul>
+          <div class="Collection">
+            <el-button type="primary" style="width:100px;height: 40px;font-size: 18px;background-color:#a0cfff ; " @click="deleteCollection()" v-if="CollectionList">已收藏</el-button>
+            <el-button type="primary" style="width:100px;height: 40px;font-size: 18px; " @click="addCollection()" v-else>收藏</el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -34,24 +38,6 @@
       <div class="top">
         <p>评论区</p>
       </div>
-      <!-- <div class="comment-publish">
-        <div class="user-img">
-          <img :src="'http://127.0.0.1:8080/api/img/user-portrait/' + user.user_pic" alt="" v-if="user.user_pic" />
-          <img src="http://127.0.0.1:8080/api/img/inituser-portrait/userimg.jpg" alt="" @click="$router.push('/login')" v-else />
-        </div>
-        <div class="content">
-          <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
-          <el-button class="emoji-btn" type="primary" style="height: 25px" @click="emojibtn">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-biaoqing"></use>
-            </svg>
-            表情
-          </el-button>
-        </div>
-        <div class="btn">
-          <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
-        </div>
-      </div> -->
       <Commentbox :vid="id" :CommentType="1"></Commentbox>
     </div>
     <!-- 评论区 -->
@@ -59,18 +45,6 @@
     <!-- 底部评论框 -->
     <transition name="ButtomContentTransition">
       <div class="buttom-content" v-show="ButtomContentShow">
-        <!-- <div class="content">
-          <el-input v-model="textarea" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" style="resize: none" placeholder="请输入评论" />
-          <el-button class="emoji-btn" type="primary" style="height: 25px" @click="emojibtn">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-biaoqing"></use>
-            </svg>
-            表情
-          </el-button>
-        </div>
-        <div class="btn">
-          <el-button type="primary" style="width: 75px; height: 75px" @click="publish">发表评论</el-button>
-        </div> -->
         <Commentbox :vid="id" :CommentType="2"></Commentbox>
       </div>
     </transition>
@@ -84,7 +58,7 @@ import { ElMessage } from 'element-plus'
 import Vuex from 'vuex'
 import UserComment from '../user-comments/user-comments.vue'
 import Commentbox from '../commentbox/Commentbox.vue'
-import moment from 'moment'
+import getuserinfo from '../modular/userinfo.js'
 
 export default {
   name: 'Video',
@@ -101,6 +75,7 @@ export default {
     let filmnum = computed(() => route.query.filmnum - 1)
     let active = ref(filmnum.value || 0)
     let ButtomContentShow = ref(false)
+    let CollectionList = ref(false)
 
     const srollFun = () => {
       if (document.documentElement.scrollTop > 1750) {
@@ -114,7 +89,6 @@ export default {
     window.addEventListener('scroll', srollFun)
 
     onMounted(async () => {
-      // let data = await axios.get('http://127.0.0.1:8080/api/videoinfo?id=' + id.value)
       let data = await proxy.$api.getdata.getVideoInfoID(id)
       videoinfo.value = data.data.data
       // 选集
@@ -124,6 +98,9 @@ export default {
       // 判断是否有登陆账号
       if (user.value.Id) {
         proxy.$api.postdata.postAddVideoList({ userId: user.value.Id, videoId: id }).then(res => console.log(res))
+        // 判断收藏列表是否有收藏这部电影
+        let userdata = await getuserinfo(user.value.Id)
+        CollectionList.value = JSON.parse(userdata.data.userinfo[0].filmcollection).includes(id)
       }
     })
 
@@ -132,48 +109,6 @@ export default {
       window.removeEventListener('scroll', srollFun)
       store.commit('changeInput', '')
     })
-
-    // 发表评论
-    // let textarea = ref('')
-    // 发表日期
-    // let date = moment().format('YYYY-MM-DD HH:mm')
-
-    // 修改input
-    // function changeComment(val) {
-    //   console.log(val)
-    //   textarea.value = val
-    // }
-
-    // 发布评论
-    async function publish() {
-      if (!user.value.Id) {
-        router.push('/login')
-      } else {
-        // console.log(textarea.value, date, id.value, user.value.Id)
-        if (textarea.value.trim()) {
-          await await proxy.$api.postdata
-            .postRelease({
-              uid: user.value.Id,
-              vid: id,
-              content: textarea.value,
-              date: moment().format('YYYY-MM-DD HH:mm')
-            })
-            .then(res => {
-              if (res.data.code == 200) {
-                ElMessage({
-                  message: '经验+3',
-                  type: 'success'
-                })
-                location.reload() //刷新网页
-              }
-            })
-          textarea.value = ''
-        } else {
-          textarea.value = ''
-          return ElMessage.error('请输入评论内容！')
-        }
-      }
-    }
 
     //选集点击事件
     function filmClick(index) {
@@ -186,9 +121,32 @@ export default {
       }
     }
 
-    // 表情按钮点击事件
-    function emojibtn() {
-      console.log('表情按钮')
+    // 收藏按钮
+    function addCollection() {
+      if (user.value.Id) {
+        proxy.$api.postdata.postaddCollection({ userId: user.value.Id, videoId: id })
+        CollectionList.value = true
+        ElMessage({
+          message: '收藏成功',
+          type: 'success'
+        })
+      } else {
+        return ElMessage.error('请先登录')
+      }
+    }
+
+    // 取消收藏
+    function deleteCollection() {
+      if (user.value.Id) {
+        proxy.$api.postdata.postdeleteCollection({ userId: user.value.Id, videoId: id })
+        CollectionList.value = false
+        ElMessage({
+          message: '已取消收藏',
+          type: 'success'
+        })
+      } else {
+        return ElMessage.error('请先登录')
+      }
     }
 
     return {
@@ -197,9 +155,10 @@ export default {
       id,
       active,
       ButtomContentShow,
-      publish,
+      CollectionList,
       filmClick,
-      emojibtn
+      addCollection,
+      deleteCollection
     }
   }
 }
@@ -279,6 +238,12 @@ video {
   height: 400px;
   background-color: #323232;
   border: #a8a8a8 solid 2px;
+}
+
+.Collection {
+  position: absolute;
+  top: 30px;
+  right: 50px;
 }
 
 .img-max {

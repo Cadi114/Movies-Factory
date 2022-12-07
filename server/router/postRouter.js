@@ -10,6 +10,8 @@ import { postAddPraise } from '../controller/addpraise.js'
 import { postCancelPraise } from '../controller/cancelPraise.js'
 import { postAddReplyPraise } from '../controller/addreplypraise.js'
 import { postCancelReplyPraise } from '../controller/cancelReplyPraise.js'
+import { postaddCollection } from '../controller/addCollection.js'
+import { postdeleteCollection } from '../controller/postdeleteCollection.js'
 
 const router = new express.Router()
 
@@ -43,5 +45,8 @@ router.post('/cancelpraise', postCancelPraise)
 router.post('/addreplypraise', postAddReplyPraise)
 // 取消回复评论的点赞
 router.post('/cancelreplypraise', postCancelReplyPraise)
-
+// 添加收藏
+router.post('/addcollection', postaddCollection)
+// 取消收藏 
+router.post('/deletecollection', postdeleteCollection)
 export default router

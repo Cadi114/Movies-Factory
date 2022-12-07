@@ -34,6 +34,8 @@
           <p>暂无观看</p>
         </div>
       </div>
+      <p>收藏</p>
+      <FilmCollection v-if="filmcollectionList.length>0" :filmcollectionList="filmcollectionList"></FilmCollection>
     </div>
   </div>
 </template>
@@ -44,9 +46,11 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Vuex from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
 import getuserinfo from '../modular/userinfo.js'
+import FilmCollection from './FilmCollection.vue'
 
 export default {
   name: 'Userinfo',
+  components: { FilmCollection },
   setup() {
     const { proxy } = getCurrentInstance()
     const store = Vuex.useStore()
@@ -56,6 +60,7 @@ export default {
     const uid = route.params.uid
     let user = ref({})
     let videoList = ref([])
+    let filmcollectionList = ref([])
 
     let userinfo = reactive({
       id: myuser.value.Id,
@@ -133,10 +138,16 @@ export default {
       // 获取用户信息
       const data = await getuserinfo(uid)
       user.value = data.data.userinfo[0]
+
       // 获取此用户的近期观看列表
-      if (JSON.parse(user.value.videolist) != null) {
-        const oldlist = await proxy.$api.postdata.postUserVideoList(JSON.parse(user.value.videolist))
+      if (JSON.parse(user.value.videolist) || JSON.parse(user.value.filmcollection) != null) {
+        const list = {
+          videolist: JSON.parse(user.value.videolist),
+          filmcollection: JSON.parse(user.value.filmcollection)
+        }
+        const oldlist = await proxy.$api.postdata.postUserVideoList(list)
         videoList.value = oldlist.data.data
+        filmcollectionList.value = oldlist.data.filmcollectionList
       }
     })
 
@@ -144,6 +155,7 @@ export default {
       myuser,
       user,
       videoList,
+      filmcollectionList,
       getinfo,
       logout,
       goVideo
@@ -172,16 +184,17 @@ input {
 
 .userinfo {
   display: flex;
-  width: 1200px;
+  width: 1300px;
   margin: 0 auto;
   margin-top: 40px;
+  margin-bottom: 50px;
 }
 
 .portrait {
   width: 200px;
   margin-left: 40px;
   border-right: 3px solid #fff;
-  height: 450px;
+  height: 1000px;
   padding-left: 80px;
 }
 
@@ -230,7 +243,7 @@ input {
 }
 
 .uservideolist {
-  width: 800px;
+  width: 880px;
   height: 300px;
   background: #323232;
   padding: 15px;
@@ -243,8 +256,7 @@ input {
   cursor: pointer;
   margin-right: 20px;
 }
-
-.uservideolist .video-box img {
+.video-box img {
   width: 200px;
   height: 280px;
 }
@@ -256,7 +268,7 @@ input {
   font-weight: 600;
 }
 
-.video-box .mask {
+.mask {
   position: absolute;
   pointer-events: none;
   top: 0;
@@ -287,6 +299,29 @@ input {
   font-size: 15px;
   cursor: pointer;
 }
+
+.FilmCollection {
+  width: 880px;
+  background-color: #323232;
+  padding: 15px;
+}
+
+.FilmCollection-list {
+  width: 100%;
+  overflow: hidden;
+}
+
+.FilmCollection-list div {
+  float: left;
+}
+.page-box {
+  width: 600px;
+  margin: 0 auto;
+}
+
+/* :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
+  background-color: #ff9800 !important;
+} */
 </style>
 <style>
 .el-message-box {
@@ -299,5 +334,45 @@ input {
 
 .el-message-box__content {
   color: rgb(184, 184, 184);
+}
+
+.el-pagination-bg-color {
+  background: #323232 !important;
+}
+
+.el-pagination.is-background .el-pager li:not(.disabled) {
+  background-color: #323232;
+  color: #fff;
+  font-size: 16px;
+}
+
+.el-pagination.is-background .el-pager li:not(.is-disabled).is-active {
+  background-color: rgb(130, 130, 130);
+}
+
+.el-pagination.is-background .btn-next:disabled,
+.el-pagination.is-background .btn-prev:disabled {
+  background-color: #323232;
+}
+
+.el-pagination.is-background .btn-next.is-first,
+.el-pagination.is-background .btn-prev.is-first,
+.el-pagination.is-background .el-pager {
+  background-color: #323232;
+  color: #fff;
+  font-size: 16px;
+}
+
+.el-pagination.is-background .btn-next.is-last,
+.el-pagination.is-background .btn-prev.is-last,
+.el-pagination.is-background .btn-next,
+.el-pagination.is-background .el-pager {
+  background-color: #323232;
+  color: #fff;
+  font-size: 16px;
+}
+
+.el-pagination__editor.el-input .el-input__inner {
+  font-size: 16px;
 }
 </style>

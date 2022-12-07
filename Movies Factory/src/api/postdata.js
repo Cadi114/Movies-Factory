@@ -117,4 +117,22 @@ function postCancelReplyPraise(data = {}) {
   })
 }
 
-export default { postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList, postAddPraise, postCancelPraise, postAddReplyPraise, postCancelReplyPraise }
+// 添加收藏
+function postaddCollection(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/addcollection',
+    data
+  })
+}
+
+// 取消收藏
+function postdeleteCollection(data = {}) {
+  return request({
+    method: 'POST',
+    url: '/api/deleteCollection',
+    data
+  })
+}
+
+export default { postdeleteCollection, postaddCollection, postLogin, postRegister, postRelease, postDeleteComment, postAddreply, postAddImg, postDeleteReply, postAddVideoList, postUserVideoList, postAddPraise, postCancelPraise, postAddReplyPraise, postCancelReplyPraise }
